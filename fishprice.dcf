@@ -1,0 +1,13 @@
+name: fishprice
+title: fishprice
+username:
+account: divisionbell
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5144807
+bundleId: 5261874
+url: https://divisionbell.shinyapps.io/fishprice/
+when: 1637151071.59298
+lastSyncTime: 1637151071.59299
+asMultiple: FALSE
+asStatic: FALSE
