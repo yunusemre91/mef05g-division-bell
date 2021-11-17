@@ -6,6 +6,6 @@
 
 ## Group Project
 
-### 1-)Preprocessing
+### 1-) Preprocessing
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can see first part of our group project by clicking ***[here](https://pjournal.github.io/mef05g-division-bell/pre_process.nb.html)***.
