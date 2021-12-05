@@ -12,4 +12,4 @@
 
 ### 2-) Exploratory Data Analysis
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the second part of our group project we have created an EDA report. You can see html file of the report by clicking ***[here](https://pjournal.github.io/mef05g-division-bell/eda.nb.html)*** or R script by clicking ***[.rds file](https://pjournal.github.io/mef05g-division-bell/eda.R)***.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the second part of our group project we have created an EDA report. You can see html file of the report by clicking ***[here](https://pjournal.github.io/mef05g-division-bell/eda.nb.html)*** or R script by clicking ***[.r script](https://pjournal.github.io/mef05g-division-bell/eda.R)***.
