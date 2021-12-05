@@ -1,0 +1,430 @@
+---
+title: "**BDA-503 Division Bell Group Project &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Exploratory Data Analysis**"
+author: " _Murat Can Taşar_, _Nejat Uğur Akın_, _Yunus Emre Doğan_, _Emirhan Şahin_"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+    html_notebook:
+        toc: true
+        toc_depth: 3
+        toc_float:
+            collapsed: false
+---
+<br>
+<style>
+#TOC {
+    color: #404040;
+    font-size: 13px;
+    border-color: #000000;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h1.title {
+    color: #404040;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h4.author {
+    color: #404040;
+    font-size: 12px;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h4.date {
+    color: #404040;
+    font-size: 12px;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+body {
+    color: #696969;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+    background-color: #F5F5F5;
+    font-size: 16px;
+</style>
+
+# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#404040">**Turkish Natural Gas Market**</span>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In this part we will do some exploratory data analysis using the data that we previously gathered, cleaned and processed. That procedure can be seen in [this](https://pjournal.github.io/mef05g-division-bell/pre_processed.nb.html) page.
+
+```{r,  include = FALSE}
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tibble)
+library(scales)
+library(gridExtra)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As usual we start by reading the rds file that was created before.
+
+```{r, message = FALSE}
+df <- readRDS("natural_gas_data.rds")
+```
+
+<br>
+
+## **The Processed RDS Data**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This RDS data file contains all the data we need and previously gathered, cleaned and processed. The RDS data can be downloaded [here](https://pjournal.github.io/mef05g-division-bell/natural_gas_data.rds).
+
+<br>
+
+### **Structure of the Data**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Let's see the structure of the dataframe `natural_gas_data.rds`.
+
+```{r}
+str(df)
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As seen above there are 3 columns with 1188 row and all the values in appropriate format and ready to analysis.
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This `summary` function give us five-number summary of our whole dataset. The median identifies the centre of a data set; the upper and lower quartiles span the middle half of a data set; and the highest and lowest observations provide additional information about the actual dispersion of the data. That is why we use the five-number summary a lot to overview measure of the spread.
+
+```{r}
+summary(df)
+```
+
+<br>
+
+### **Visualization of the Data**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The code chunk below includes the code that gives us `General overview of Gas Reference Prices` using ggplot2 package.
+
+```{r}
+ggplot(df,
+       aes(x=Date,
+           y=Gas_Reference_Price)) +
+  geom_bar(stat = "identity",
+           aes(fill=Gas_Reference_Price)) +
+  theme_light() +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  scale_fill_gradient(name="Gas Reference Price") +
+  labs(title="Daily Gas Reference Prices",
+       x="Date",
+       y="Gas Reference Price")
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can see the red line and wonder what that indicates. That line is the mean of our y-axis.
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; With the same approach the code chunk below includes the code that gives us `General overview of Total Trade Volume` using ggplot2 package.
+
+```{r}
+ggplot(df,
+       aes(x=Date,
+           y=Total_Trade_Volume)) +
+  geom_bar(stat = "identity",
+           aes(fill=Total_Trade_Volume)) +
+  theme_light() +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+             size=1,
+             color="red") +
+  scale_fill_gradient(name="Total Trade Volume") +
+  labs(title="Daily Total Trade Volume",
+       x="Date",
+       y="Total Trade Volume")
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As seen above, compared to reference prices, total trade volume is much more volatile and tend to vary abundantly.
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This surely can be observed when we take a look at the standard deviation values of both columns.
+
+```{r}
+sd(df$Total_Trade_Volume)
+sd(df$Gas_Reference_Price)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In this part, we will use the columns that we have created back in preprocessing procedure. These columns will allow us to overview our data in terms of different time periods.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; We start by visualizing our data frame in yearly basis.
+
+```{r}
+tv_years_average <- df %>%
+  group_by(year_num) %>%
+  summarise(mean_yearly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=year_num, y=mean_yearly_tv, fill=mean_yearly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+             size=1,
+             color="red") +
+  labs(
+    x="Years",
+    y="Average Yearly Total TV",
+    title="Average TV over the Years",
+    fill="Average Yearly Total TV"
+  )
+tv_years_total <- df %>%
+  group_by(year_num) %>%
+  summarise(total_yearly_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=year_num, y=total_yearly_tv, fill=total_yearly_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Years",
+    y="Total Yearly TV",
+    title="Total TV over the Years",
+    fill="Total Yearly TV"
+  )
+gp_years_average <- df %>%
+  group_by(year_num) %>%
+  summarise(mean_yearly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=year_num, y=mean_yearly_gp, fill=mean_yearly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  labs(
+    x="Years",
+    y="Average Yearly GRP",
+    title="Average GRP over the Years",
+    fill="Average Yearly GRP"
+  )
+gp_years_total <- df %>%
+  group_by(year_num) %>%
+  summarise(total_yearly_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=year_num, y=total_yearly_gp, fill=total_yearly_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Years",
+    y="Total Yearly GRP",
+    title="Total GRP over the Years",
+    fill="Total Yearly GRP"
+  )
+grid.arrange(gp_years_average, gp_years_total, tv_years_average, tv_years_total, ncol=2)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then we continue with visualizing in monthly basis.
+
+```{r}
+tv_months_average <- df %>%
+  group_by(month_num) %>%
+  summarise(mean_monthly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=month_num, y=mean_monthly_tv, fill=mean_monthly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+           size=1,
+           color="red") +
+  labs(
+    x="Months",
+    y="Average Monthly Total TV",
+    title="Average TV over the Months",
+    fill="Average Monthly Total TV"
+  )
+tv_months_total <- df %>%
+  group_by(month_num) %>%
+  summarise(total_monthly_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=month_num, y=total_monthly_tv, fill=total_monthly_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Months",
+    y="Total Monthly TV",
+    title="Total TV over the Months",
+    fill="Total Monthly TV"
+  )
+gp_months_average <- df %>%
+  group_by(month_num) %>%
+  summarise(mean_monthly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=month_num, y=mean_monthly_gp, fill=mean_monthly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  labs(
+    x="Months",
+    y="Average Monthly GRP",
+    title="Average GRP over the Months",
+    fill="Average Monthly GRP"
+  )
+
+gp_months_total <- df %>%
+  group_by(month_num) %>%
+  summarise(total_monthly_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=month_num, y=total_monthly_gp, fill=total_monthly_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Months",
+    y="Total Monthly GRP",
+    title="Total GRP over the Months",
+    fill="Total Monthly GRP"
+  )
+grid.arrange(gp_months_average, gp_months_total, tv_months_average, tv_months_total, ncol=2)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; We visualize the data in weekly basis as well.
+
+```{r}
+tv_weeks_average <- df %>%
+  group_by(week_num) %>%
+  summarise(mean_weekly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=week_num, y=mean_weekly_tv, fill=mean_weekly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+           size=1,
+           color="red") +
+  labs(
+    x="Weeks",
+    y="Average Weekly Total TV",
+    title="Average TV over the Weeks",
+    fill="Average Weekly Total TV"
+  )
+tv_weeks_total <- df %>%
+  group_by(week_num) %>%
+  summarise(total_weekly_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=week_num, y=total_weekly_tv, fill=total_weekly_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Weeks",
+    y="Total Weekly TV",
+    title="Total TV over the Weeks",
+    fill="Total Weekly TV"
+  )
+gp_weeks_average <- df %>%
+  group_by(week_num) %>%
+  summarise(mean_weekly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=week_num, y=mean_weekly_gp, fill=mean_weekly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  labs(
+    x="Weeks",
+    y="Average Weekly GRP",
+    title="Average GRP over the Weeks",
+    fill="Average Weekly GRP"
+  )
+gp_weeks_total <- df %>%
+  group_by(week_num) %>%
+  summarise(total_weekly_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=week_num, y=total_weekly_gp, fill=total_weekly_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Weeks",
+    y="Total Weekly GRP",
+    title="Total GRP over the Weeks",
+    fill="Total Weekly GRP"
+  )
+grid.arrange(gp_weeks_average, gp_weeks_total, tv_weeks_average, tv_weeks_total, ncol=2)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; And then in days of the week basis. But since prices didn't vary considering the day of the week we excluded that part in this visualization.
+
+```{r}
+
+tv_days_average <- df %>%
+  group_by(day_of_week) %>%
+  summarise(mean_daily_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=day_of_week, y=mean_daily_tv, fill=mean_daily_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Days of the Week",
+    y="Average Daily Total TV",
+    title="Average TV over the Weekdays",
+    fill="Average Daily Total TV"
+  )
+tv_days_total <- df %>%
+  group_by(day_of_week) %>%
+  summarise(total_daily_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=day_of_week, y=total_daily_tv, fill=total_daily_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Days of the Week",
+    y="Daily Total TV",
+    title="Total TV over the Weekdays",
+    fill="Daily Total TV"
+  )
+grid.arrange(tv_days_average, tv_days_total)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lastly, we visualize our data based on the season of the year.
+
+```{r}
+
+tv_seasons_average <- df %>%
+  group_by(season) %>%
+  summarise(mean_seasonal_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=season, y=mean_seasonal_tv, fill=mean_seasonal_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+             size=1,
+             color="red") +
+  labs(
+    x="Seasons",
+    y="Average Seasonal TV",
+    title="Average TV over the Seasons",
+    fill="Average Seasonal TV"
+  )
+tv_seasons_total <- df %>%
+  group_by(season) %>%
+  summarise(total_seasonal_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=season, y=total_seasonal_tv, fill=total_seasonal_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Seasons",
+    y="Total Seasonal TV",
+    title="Total TV over the Seasons",
+    fill="Total Seasonal TV"
+  )
+gp_seasons_average <- df %>%
+  group_by(season) %>%
+  summarise(mean_seasonal_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=season, y=mean_seasonal_gp, fill=mean_seasonal_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  labs(
+    x="Seasons",
+    y="Average Seasonal GRP",
+    title="Average GRP over the Seasons",
+    fill="Average Seasonal GRP"
+  )
+gp_seasons_total <- df %>%
+  group_by(season) %>%
+  summarise(total_seasonal_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=season, y=total_seasonal_gp, fill=total_seasonal_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Seasons",
+    y="Total Seasonal GRP",
+    title="Total GRP over the Seasons",
+    fill="Total Seasonal GRP"
+  )
+grid.arrange(gp_seasons_average, gp_seasons_total, tv_seasons_average, tv_seasons_total, ncol=2)
+```
+
+<br>
+<br>
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;___Thanks for reading...___
+<br>
+<br>
+![Division Bell](https://hdwallpaperim.com/wp-content/uploads/2017/08/24/110460-Pink_Floyd-the_division_bell-music.jpg)\

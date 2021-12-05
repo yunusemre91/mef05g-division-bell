@@ -57,6 +57,7 @@ library(ggplot2)
 library(readxl)
 library(tibble)
 library(gridExtra)
+library(scales)
 ```
 
 <br>
@@ -211,6 +212,68 @@ head(trade_volume)
 
 <br>
 
+### **c-) Feature Generation**
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In this part we will create multiples columns out of `Date` so we can deepen our analyses comparing them yearly, monthly, weekly, seasonally and many more.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; We start by creating the weeks column.
+
+```{r}
+trade_volume$week_num <- strftime((trade_volume$Date), format = "%V")
+trade_volume$week_num <- as.numeric(trade_volume$week_num)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then, the months column.
+
+```{r}
+trade_volume$month_num <- month(trade_volume$Date)
+trade_volume$month_num <- as.numeric(trade_volume$month_num)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Here, we created the day of the week column.
+
+```{r}
+trade_volume$day_of_week <- wday(trade_volume$Date, label = TRUE, abbr = TRUE)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Also, the year column.
+
+```{r}
+trade_volume$year_num <- isoyear(trade_volume$Date)
+trade_volume$year_num <- as.numeric(trade_volume$year_num)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lastly, the season column.
+
+```{r}
+seasons <- NULL  # initialize empty vector
+for(row in seq_len(nrow(trade_volume["Date"]))){
+  if((trade_volume["month_num"][row, 1] == 12) | (trade_volume["month_num"][row, 1] == 1) | (trade_volume["month_num"][row, 1] == 2)){
+    seasons <- append(seasons,"Winter")
+  }
+  else if((trade_volume["month_num"][row, 1] == 3) | (trade_volume["month_num"][row, 1] == 4) | (trade_volume["month_num"][row, 1] == 5)){
+    seasons <- append(seasons,"Spring")
+  }
+  else if((trade_volume["month_num"][row, 1] == 6) | (trade_volume["month_num"][row, 1] == 7) | (trade_volume["month_num"][row, 1] == 8)){
+    seasons <- append(seasons,"Summer")
+  }
+  else {
+    seasons <- append(seasons,"Fall")
+  }
+}
+trade_volume["season"] <- seasons
+```
+
+<br>
+
 ## **3-) Creating the RDS File**
 
 <br>
@@ -218,7 +281,8 @@ head(trade_volume)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Two data we will mainly use is ready to merge and go ahead with the further analyses. We merge these two data by `Date` column and name it as `df`.
 
 ```{r}
-df <- merge(x=trade_volume, y=gas_prices, by="Date")
+df <- merge(x=trade_volume, y=gas_prices, by='Date')
+head(df)
 ```
 
 <br>
