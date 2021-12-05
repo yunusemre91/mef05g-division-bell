@@ -11,7 +11,7 @@
 
 <meta name="author" content="Murat Can Taşar, Nejat Uğur Akın, Yunus Emre Doğan, Emirhan Şahin" />
 
-<meta name="date" content="2021-11-17" />
+<meta name="date" content="2021-12-05" />
 
 <title>BDA-503 Division Bell Group Project         Pre-processing the Data</title>
 
@@ -295,7 +295,7 @@ div.tocify {
 
 <h1 class="title toc-ignore"><strong>BDA-503 Division Bell Group Project         Pre-processing the Data</strong></h1>
 <h4 class="author"><em>Murat Can Taşar</em>, <em>Nejat Uğur Akın</em>, <em>Yunus Emre Doğan</em>, <em>Emirhan Şahin</em></h4>
-<h4 class="date">November 17, 2021</h4>
+<h4 class="date">December 05, 2021</h4>
 
 </div>
 
@@ -332,51 +332,69 @@ body {
 <div id="turkish-natural-gas-market" class="section level1">
 <h1>                  <span style="color:#404040"><strong>Turkish Natural Gas Market</strong></span></h1>
 <p><br></p>
-<p>        In this part of the project, we will start with loading necessary packages in the background and the data files which are <a href="https://pjournal.github.io/mef05g-division-bell/GEM.csv">GEM.csv</a> and <a href="https://pjournal.github.io/mef05g-division-bell/GRF.csv">GRF.csv</a>.</p>
-<!-- rnb-text-end -->
-<!-- rnb-text-begin -->
+<p>        We will start this project by preprocessing the data files so we can eliminate noisy data, correct the data format, remove NA values and clean the data. With this procedure, we will create an RDS file so in the next parts of our project it will be easier to conduct some analyses and create insight.</p>
+<p><br></p>
+<p>        Before we start the project, we will begin with loading necessary packages to process the data files which are <a href="https://pjournal.github.io/mef05g-division-bell/GRP.xls">GRP.xls</a> and <a href="https://pjournal.github.io/mef05g-division-bell/TTV.xls">TTV.xls</a>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImdhc19wcmljZXMgPC0gcmVhZC5jc3YoXCJHUkYuY3N2XCIsIHNlcD0nLCcsIGRlYz0nLCcpIiwiZ2VtIDwtIHJlYWQuY3N2KFwiR0VNLmNzdlwiLCBzZXA9JywnLCBkZWM9Jy4nKSJdfQ== -->
-<pre class="r"><code>gas_prices &lt;- read.csv(&quot;GRF.csv&quot;, sep=&#39;,&#39;, dec=&#39;,&#39;)
-gem &lt;- read.csv(&quot;GEM.csv&quot;, sep=&#39;,&#39;, dec=&#39;.&#39;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjpbImxpYnJhcnkodGlkeXIpIiwibGlicmFyeShkcGx5cikiLCJsaWJyYXJ5KHN0cmluZ3IpIiwibGlicmFyeShsdWJyaWRhdGUpIiwibGlicmFyeShnZ3Bsb3QyKSIsImxpYnJhcnkocmVhZHhsKSIsImxpYnJhcnkodGliYmxlKSIsImxpYnJhcnkoZ3JpZEV4dHJhKSJdfQ== -->
+<pre class="r"><code>library(tidyr)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tibble)
+library(gridExtra)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p><br></p>
-<div id="grf-data" class="section level2">
-<h2><strong>1-) GRF Data</strong></h2>
+<div id="grp-data" class="section level2">
+<h2><strong>1-) GRP Data</strong></h2>
 <p><br></p>
-<p>        This data contains daily gas reference prices. This data obtained from <a href="https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-grf.xhtml#">here</a>.</p>
+<p>        This data contains daily gas reference prices between 01/09/2018 and 01/12/2021. The data obtained from <a href="https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-grf.xhtml#">here</a>.</p>
+<p>        We proceed to read the xls data file.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiZ2FzX3ByaWNlcyA8LSByZWFkX2V4Y2VsKFwiR1JQLnhsc1wiKSJ9 -->
+<pre class="r"><code>gas_prices &lt;- read_excel(&quot;GRP.xls&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <p><br></p>
-<div id="b--structure-of-the-data" class="section level3">
-<h3><strong>b-) Structure of the Data</strong></h3>
+<div id="a--structure-of-the-data" class="section level3">
+<h3><strong>a-) Structure of the Data</strong></h3>
 <p><br></p>
-<p>        Let’s see the structure of the data frame <code>GRF.csv</code>.</p>
+<p>        Let’s see the structure of the data file <code>GRP.xls</code>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoic3RyKGdhc19wcmljZXMpIn0= -->
 <pre class="r"><code>str(gas_prices)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJ2RhdGEuZnJhbWUnOlx0MTA1MCBvYnMuIG9mICAyIHZhcmlhYmxlczpcbiAkIEdhei5HdW51OiBjaHIgIFwiMDEtMDEtMTlcIiBcIjAyLTAxLTE5XCIgXCIwMy0wMS0xOVwiIFwiMDQtMDEtMTlcIiAuLi5cbiAkIEdSRiAgICAgOiBjaHIgIFwiMS41ODYsODdcIiBcIjEuNTg2LDA0XCIgXCIxLjU5OCw4NVwiIFwiMS42MTQsNDlcIiAuLi5cbiJ9 -->
-<pre><code>&#39;data.frame&#39;:   1050 obs. of  2 variables:
- $ Gaz.Gunu: chr  &quot;01-01-19&quot; &quot;02-01-19&quot; &quot;03-01-19&quot; &quot;04-01-19&quot; ...
- $ GRF     : chr  &quot;1.586,87&quot; &quot;1.586,04&quot; &quot;1.598,85&quot; &quot;1.614,49&quot; ...</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoidGliYmxlIFsxLDE4OCB4IDJdIChTMzogdGJsX2RmL3RibC9kYXRhLmZyYW1lKVxuICQgR2F6IEd1bnU6IGNociBbMToxMTg4XSBcIjAxLzA5LzIwMThcIiBcIjAyLzA5LzIwMThcIiBcIjAzLzA5LzIwMThcIiBcIjA0LzA5LzIwMThcIiAuLi5cbiAkIEdSRiAgICAgOiBjaHIgWzE6MTE4OF0gXCIxLjY1MCwwMFwiIFwiMS42NTAsMDBcIiBcIjEuNjU2LDQ1XCIgXCIxLjY0NCwyM1wiIC4uLlxuIn0= -->
+<pre><code>tibble [1,188 x 2] (S3: tbl_df/tbl/data.frame)
+ $ Gaz Gunu: chr [1:1188] &quot;01/09/2018&quot; &quot;02/09/2018&quot; &quot;03/09/2018&quot; &quot;04/09/2018&quot; ...
+ $ GRF     : chr [1:1188] &quot;1.650,00&quot; &quot;1.650,00&quot; &quot;1.656,45&quot; &quot;1.644,23&quot; ...</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>        As seen above the data type in columns are inappropriate so we have to change them.</p>
 <p><br></p>
-<p>        Take a look if there is any missing values..</p>
+<p>        We also see that change the column names since they are in Turkish. We changed <code>Gaz Günü</code> column to <code>Date</code> and <code>GRF</code> column to <code>Gas_Reference_Price</code>. Then take a look if there is any missing values.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoic3VtKGlzLm5hKGdhc19wcmljZXMkR1JGKSkifQ== -->
-<pre class="r"><code>sum(is.na(gas_prices$GRF))</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjpbIm5hbWVzKGdhc19wcmljZXMpIDwtIGMoJ0RhdGUnLFxuICAgICAgICAgICAgICAgICAgICAgICAnR2FzX1JlZmVyZW5jZV9QcmljZScpIiwiIiwic3VtKGlzLm5hKGdhc19wcmljZXMkR2FzX1JlZmVyZW5jZV9QcmljZSkpIl19 -->
+<pre class="r"><code>names(gas_prices) &lt;- c(&#39;Date&#39;,
+                       &#39;Gas_Reference_Price&#39;)
+
+sum(is.na(gas_prices$Gas_Reference_Price))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
 <pre><code>[1] 0</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoic3VtKGlzLm5hKGdhc19wcmljZXMkR2F6Lkd1bnUpKSJ9 -->
-<pre class="r"><code>sum(is.na(gas_prices$Gaz.Gunu))</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoic3VtKGlzLm5hKGdhc19wcmljZXMkRGF0ZSkpIn0= -->
+<pre class="r"><code>sum(is.na(gas_prices$Date))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
 <pre><code>[1] 0</code></pre>
@@ -388,149 +406,161 @@ gem &lt;- read.csv(&quot;GEM.csv&quot;, sep=&#39;,&#39;, dec=&#39;.&#39;)</code>
 </div>
 <div id="b--processing-the-columns" class="section level3">
 <h3><strong>b-) Processing the Columns</strong></h3>
-<p>        We changed <code>Gaz Gunu</code> column to <code>Date</code> and format it as date data type.</p>
+<p>        We then proceed to format the Date column as date format type using lubridate.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbIm5hbWVzKGdhc19wcmljZXMpW25hbWVzKGdhc19wcmljZXMpID09ICdHYXouR3VudSddIDwtIFwiRGF0ZVwiIiwiZ2FzX3ByaWNlcyREYXRlIDwtIGRteShnYXNfcHJpY2VzJERhdGUpIl19 -->
-<pre class="r"><code>names(gas_prices)[names(gas_prices) == &#39;Gaz.Gunu&#39;] &lt;- &quot;Date&quot;
-gas_prices$Date &lt;- dmy(gas_prices$Date)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiZ2FzX3ByaWNlcyREYXRlIDwtIGRteShnYXNfcHJpY2VzJERhdGUpIn0= -->
+<pre class="r"><code>gas_prices$Date &lt;- dmy(gas_prices$Date)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p><br></p>
-<p>        Because dot(<strong><code>.</code></strong>), is used as thousand separator and comma(<strong><code>,</code></strong>) as decimal point we had to deal with it for further processes. We have achieved that by manually seperating splitting strings into two parts. Then we converted those two columns into numeric.</p>
+<p>        Because dot(<strong><code>.</code></strong>), is used as thousand separator and comma(<strong><code>,</code></strong>) as decimal point we had to deal with it for further processes. We have achieved that by using gsub function. Then we converted it into numeric.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImdhc19wcmljZXNbXCJiZWZvcmVfZGVjaW1hbFwiXSA8LSBzdHJfc3BsaXRfZml4ZWQoZ2FzX3ByaWNlcyRHUkYsIFwiLFwiLCAyKVssIDFdIiwiZ2FzX3ByaWNlc1tcImFmdGVyX2RlY2ltYWxcIl0gPC0gc3RyX3NwbGl0X2ZpeGVkKGdhc19wcmljZXMkR1JGLCBcIixcIiwgMilbLCAyXSIsImdhc19wcmljZXNbXCJiZWZvcmVfZGVjaW1hbFwiXSA8LSBhcy5udW1lcmljKGdhc19wcmljZXMkYmVmb3JlX2RlY2ltYWwpIiwiZ2FzX3ByaWNlc1tcImFmdGVyX2RlY2ltYWxcIl0gPC0gYXMubnVtZXJpYyhnYXNfcHJpY2VzJGFmdGVyX2RlY2ltYWwpIl19 -->
-<pre class="r"><code>gas_prices[&quot;before_decimal&quot;] &lt;- str_split_fixed(gas_prices$GRF, &quot;,&quot;, 2)[, 1]
-gas_prices[&quot;after_decimal&quot;] &lt;- str_split_fixed(gas_prices$GRF, &quot;,&quot;, 2)[, 2]
-gas_prices[&quot;before_decimal&quot;] &lt;- as.numeric(gas_prices$before_decimal)
-gas_prices[&quot;after_decimal&quot;] &lt;- as.numeric(gas_prices$after_decimal)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjpbImdhc19wcmljZXMkR2FzX1JlZmVyZW5jZV9QcmljZSA8LSBnc3ViKCcuJyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICcnLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ2FzX3ByaWNlcyRHYXNfUmVmZXJlbmNlX1ByaWNlLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZml4ZWQgPSBUUlVFKSIsImdhc19wcmljZXMkR2FzX1JlZmVyZW5jZV9QcmljZSA8LSBhcy5udW1lcmljKGdzdWIoJywnLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAnLicsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGdhc19wcmljZXMkR2FzX1JlZmVyZW5jZV9QcmljZSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZml4ZWQgPSBUUlVFKSkiXX0= -->
+<pre class="r"><code>gas_prices$Gas_Reference_Price &lt;- gsub(&#39;.&#39;,
+                                       &#39;&#39;,
+                                       gas_prices$Gas_Reference_Price,
+                                       fixed = TRUE)
+gas_prices$Gas_Reference_Price &lt;- as.numeric(gsub(&#39;,&#39;,
+                                                  &#39;.&#39;,
+                                                  gas_prices$Gas_Reference_Price,
+                                                  fixed = TRUE))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p><br></p>
-<p>        The right part in the decimal values supposed to be 0 but they turned as without zeros before the decimal number. We have constructed a for loop in order to replace the zeros so we get the correct numbers.</p>
+<p>        Now if we take a look at the data we will see everything is ready to analysis.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiZm9yKHJvdyBpbiAxOm5yb3coZ2FzX3ByaWNlc1tcImFmdGVyX2RlY2ltYWxcIl0pKXtcbiAgaWYobmNoYXIoZ2FzX3ByaWNlc1tcImFmdGVyX2RlY2ltYWxcIl1bcm93LCAxXSkgPT0gMSl7XG4gICAgZ2FzX3ByaWNlc1tcImFmdGVyX2RlY2ltYWxcIl1bcm93LCAxXSA8LSBwYXN0ZSgwLCBnYXNfcHJpY2VzW1wiYWZ0ZXJfZGVjaW1hbFwiXVtyb3csIDFdLCBzZXA9XCJcIilcbiAgfVxufSJ9 -->
-<pre class="r"><code>for(row in 1:nrow(gas_prices[&quot;after_decimal&quot;])){
-  if(nchar(gas_prices[&quot;after_decimal&quot;][row, 1]) == 1){
-    gas_prices[&quot;after_decimal&quot;][row, 1] &lt;- paste(0, gas_prices[&quot;after_decimal&quot;][row, 1], sep=&quot;&quot;)
-  }
-}</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiaGVhZChnYXNfcHJpY2VzKSJ9 -->
+<pre class="r"><code>head(gas_prices)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><br></p>
-<p>        In this chunk we simply multiplied the column with 1000 so it turns into a tenth number. Then we pasted two columns and used dot(<strong><code>.</code></strong>) as decimal point. Afterwards, we converted that column into a numeric data type.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImdhc19wcmljZXNbXCJiZWZvcmVfZGVjaW1hbFwiXSA8LSBnYXNfcHJpY2VzW1wiYmVmb3JlX2RlY2ltYWxcIl0gKiAxMDAwIiwiZ2FzX3ByaWNlcyRncmYgPC0gcGFzdGUoZ2FzX3ByaWNlcyRiZWZvcmVfZGVjaW1hbCwgZ2FzX3ByaWNlcyRhZnRlcl9kZWNpbWFsLCBzZXA9XCIuXCIpIiwiZ2FzX3ByaWNlcyRncmYgPC0gYXMubnVtZXJpYyhnYXNfcHJpY2VzJGdyZikiXX0= -->
-<pre class="r"><code>gas_prices[&quot;before_decimal&quot;] &lt;- gas_prices[&quot;before_decimal&quot;] * 1000
-gas_prices$grf &lt;- paste(gas_prices$before_decimal, gas_prices$after_decimal, sep=&quot;.&quot;)
-gas_prices$grf &lt;- as.numeric(gas_prices$grf)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><br></p>
-<p>        Lastly, we created a new data frame with the columns that we will use in our analyses.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiZ2FzX3ByaWNlcyA8LSBzdWJzZXQoZ2FzX3ByaWNlcywgc2VsZWN0PS1jKEdSRiwgYmVmb3JlX2RlY2ltYWwsIGFmdGVyX2RlY2ltYWwpKSJ9 -->
-<pre class="r"><code>gas_prices &lt;- subset(gas_prices, select=-c(GRF, before_decimal, after_decimal))</code></pre>
-<!-- rnb-source-end -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Date"],"name":[1],"type":["date"],"align":["right"]},{"label":["Gas_Reference_Price"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2018-09-01","2":"1650.00"},{"1":"2018-09-02","2":"1650.00"},{"1":"2018-09-03","2":"1656.45"},{"1":"2018-09-04","2":"1644.23"},{"1":"2018-09-05","2":"1655.90"},{"1":"2018-09-06","2":"1639.40"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p><br></p>
 </div>
 </div>
-<div id="gem-data" class="section level2">
-<h2><strong>2-) GEM Data</strong></h2>
+<div id="ttv-data" class="section level2">
+<h2><strong>2-) TTV Data</strong></h2>
 <p><br></p>
-<p>        This data contains daily matched amount. This data obtained from <a href="https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-gunluk-eslesme-miktar.xhtml">here</a>.</p>
-<p><br></p>
-<div id="b--structure-of-the-data-1" class="section level3">
-<h3><strong>b-) Structure of the Data</strong></h3>
-<p><br></p>
-<p>        Let’s see the structure of the data frame <code>GEM.csv</code>.</p>
+<p>        This data contains daily gas trade volume between 01/09/2018 and 01/12/2021. The data obtained from <a href="https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-toplam-islem-hacmi.xhtml">here</a>.</p>
+<p>        Once again, we proceed to read the xls data file.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoic3RyKGdlbSkifQ== -->
-<pre class="r"><code>str(gem)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoidHJhZGVfdm9sdW1lIDwtIHJlYWRfZXhjZWwoXCJUVFYueGxzXCIpIn0= -->
+<pre class="r"><code>trade_volume &lt;- read_excel(&quot;TTV.xls&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJ2RhdGEuZnJhbWUnOlx0MTA1MSBvYnMuIG9mICA1IHZhcmlhYmxlczpcbiAkIEtvbnRyYXQ6IGNociAgXCJHRzIwMTkwMTAxXCIgXCJHRzIwMTkwMTAyXCIgXCJHRzIwMTkwMTAzXCIgXCJHRzIwMTkwMTA0XCIgLi4uXG4gJCBHw5ZFTSAgIDogbnVtICAyLjEyIDMuMDUgNS43OCAyLjY0IDY5NSAuLi5cbiAkIEfDnUVNICAgOiBjaHIgIFwiMzkzXCIgXCIwXCIgXCIwXCIgXCIxXCIgLi4uXG4gJCBHRUVNICAgOiBjaHIgIFwiMjRcIiBcIjUzXCIgXCIzMzJcIiBcIjQwXCIgLi4uXG4gJCBUT1BMQU0gOiBudW0gIDIuNTQgMy4xIDYuMTIgMi42OSA3ODkgLi4uXG4ifQ== -->
-<pre><code>&#39;data.frame&#39;:   1051 obs. of  5 variables:
- $ Kontrat: chr  &quot;GG20190101&quot; &quot;GG20190102&quot; &quot;GG20190103&quot; &quot;GG20190104&quot; ...
- $ GÖEM   : num  2.12 3.05 5.78 2.64 695 ...
- $ GÝEM   : chr  &quot;393&quot; &quot;0&quot; &quot;0&quot; &quot;1&quot; ...
- $ GEEM   : chr  &quot;24&quot; &quot;53&quot; &quot;332&quot; &quot;40&quot; ...
- $ TOPLAM : num  2.54 3.1 6.12 2.69 789 ...</code></pre>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p><br></p>
+<div id="a--structure-of-the-data-1" class="section level3">
+<h3><strong>a-) Structure of the Data</strong></h3>
+<p><br></p>
+<p>        Let’s see the structure of the data file <code>TTV.xls</code>.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoic3RyKHRyYWRlX3ZvbHVtZSkifQ== -->
+<pre class="r"><code>str(trade_volume)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidGliYmxlIFsxLDE4OCB4IDJdIChTMzogdGJsX2RmL3RibC9kYXRhLmZyYW1lKVxuICQgR2F6IEfDvG7DvCAgICAgICAgICA6IGNociBbMToxMTg4XSBcIjAxLjA5LjIwMThcIiBcIjAyLjA5LjIwMThcIiBcIjAzLjA5LjIwMThcIiBcIjA0LjA5LjIwMThcIiAuLi5cbiAkIFRvcGxhbSBJc2xlbSBIYWNtaTogY2hyIFsxOjExODhdIFwiMzc4LjUwMSwwMFwiIFwiNjgwLjAyNSwwMFwiIFwiMS4zNzEuODQ2LDI1XCIgXCIxLjAxOC42MDgsMjVcIiAuLi5cbiJ9 -->
+<pre><code>tibble [1,188 x 2] (S3: tbl_df/tbl/data.frame)
+ $ Gaz Günü          : chr [1:1188] &quot;01.09.2018&quot; &quot;02.09.2018&quot; &quot;03.09.2018&quot; &quot;04.09.2018&quot; ...
+ $ Toplam Islem Hacmi: chr [1:1188] &quot;378.501,00&quot; &quot;680.025,00&quot; &quot;1.371.846,25&quot; &quot;1.018.608,25&quot; ...</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>        As seen above the data types in columns are character so we have to change them.</p>
+<p><br></p>
+<p>        We can also see that just like previous data the column names are inappropriate. We changed <code>Gaz Günü</code> column to <code>Date</code> and <code>Toplam Islem Hacmi</code> column to <code>Total_Trade_Volume</code>. Lastly, of course we took a look if there is any missing values.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbIm5hbWVzKHRyYWRlX3ZvbHVtZSkgPC0gYygnRGF0ZScsXG4gICAgICAgICAgICAgICAgICAgICAgICAgJ1RvdGFsX1RyYWRlX1ZvbHVtZScpIiwiIiwic3VtKGlzLm5hKHRyYWRlX3ZvbHVtZSRUb3RhbF9UcmFkZV9Wb2x1bWUpKSJdfQ== -->
+<pre class="r"><code>names(trade_volume) &lt;- c(&#39;Date&#39;,
+                         &#39;Total_Trade_Volume&#39;)
+
+sum(is.na(trade_volume$Total_Trade_Volume))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
+<pre><code>[1] 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoic3VtKGlzLm5hKHRyYWRlX3ZvbHVtZSREYXRlKSkifQ== -->
+<pre class="r"><code>sum(is.na(trade_volume$Date))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
+<pre><code>[1] 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>        As seen above there is no missing value.</p>
 <p><br></p>
 </div>
 <div id="b--processing-the-columns-1" class="section level3">
 <h3><strong>b-) Processing the Columns</strong></h3>
-<p><br></p>
-<p>        Firstly, we changed <code>Kontrat</code> column to <code>Date</code>.</p>
+<p>        We proceed to format the <code>Date</code> column as date format.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoibmFtZXMoZ2VtKVtuYW1lcyhnZW0pID09ICdLb250cmF0J10gPC0gXCJEYXRlXCIifQ== -->
-<pre class="r"><code>names(gem)[names(gem) == &#39;Kontrat&#39;] &lt;- &quot;Date&quot;</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoidHJhZGVfdm9sdW1lJERhdGUgPC0gZG15KHRyYWRlX3ZvbHVtZSREYXRlKSJ9 -->
+<pre class="r"><code>trade_volume$Date &lt;- dmy(trade_volume$Date)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p><br></p>
-<p>        Because dates are coded we have to extract the specific date from the date column which includes <code>GG</code> in the begining and is string. Then put that into <code>contains_date</code> column.</p>
+<p>        Just like the previous dataset dot(<strong><code>.</code></strong>), is used as thousand separator and comma(<strong><code>,</code></strong>) as decimal point in this data. We have solved that issue by using gsub function. Then we converted it into numeric.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiZ2VtW1wiY29udGFpbnNfZGF0ZVwiXSA8LSBzdHJfc3BsaXRfZml4ZWQoZ2VtJERhdGUsIFwiR0dcIiwgMilbLCAyXSJ9 -->
-<pre class="r"><code>gem[&quot;contains_date&quot;] &lt;- str_split_fixed(gem$Date, &quot;GG&quot;, 2)[, 2]</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjpbInRyYWRlX3ZvbHVtZSRUb3RhbF9UcmFkZV9Wb2x1bWUgPC0gZ3N1YignLicsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAnJyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRyYWRlX3ZvbHVtZSRUb3RhbF9UcmFkZV9Wb2x1bWUsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBmaXhlZCA9IFRSVUUpIiwidHJhZGVfdm9sdW1lJFRvdGFsX1RyYWRlX1ZvbHVtZSA8LSBhcy5udW1lcmljKGdzdWIoJywnLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAnLicsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRyYWRlX3ZvbHVtZSRUb3RhbF9UcmFkZV9Wb2x1bWUsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZpeGVkID0gVFJVRSkpIl19 -->
+<pre class="r"><code>trade_volume$Total_Trade_Volume &lt;- gsub(&#39;.&#39;,
+                                       &#39;&#39;,
+                                       trade_volume$Total_Trade_Volume,
+                                       fixed = TRUE)
+trade_volume$Total_Trade_Volume &lt;- as.numeric(gsub(&#39;,&#39;,
+                                                  &#39;.&#39;,
+                                                  trade_volume$Total_Trade_Volume,
+                                                  fixed = TRUE))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p><br></p>
-<p>        Then we format <code>contains_date</code> column as date format with the pattern we require.</p>
+<p>        Let’s take a look at the data, everything should be ready to analysis.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImdlbVtcIkRhdGVcIl0gPC0gZm9ybWF0KGFzLkRhdGUoYXMuY2hhcmFjdGVyKGdlbSRjb250YWluc19kYXRlKSwgZm9ybWF0PVwiJVklbSVkXCIpLFwiJVktJW0tJWRcIikiLCJnZW0kRGF0ZSA8LSBhcy5EYXRlKGdlbSREYXRlLCBcIiVZLSVtLSVkXCIpIl19 -->
-<pre class="r"><code>gem[&quot;Date&quot;] &lt;- format(as.Date(as.character(gem$contains_date), format=&quot;%Y%m%d&quot;),&quot;%Y-%m-%d&quot;)
-gem$Date &lt;- as.Date(gem$Date, &quot;%Y-%m-%d&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiaGVhZCh0cmFkZV92b2x1bWUpIn0= -->
+<pre class="r"><code>head(trade_volume)</code></pre>
+<!-- rnb-source-end -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["Date"],"name":[1],"type":["date"],"align":["right"]},{"label":["Total_Trade_Volume"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"2018-09-01","2":"378501"},{"1":"2018-09-02","2":"680025"},{"1":"2018-09-03","2":"1371846"},{"1":"2018-09-04","2":"1018608"},{"1":"2018-09-05","2":"1317451"},{"1":"2018-09-06","2":"2453372"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p><br></p>
+</div>
+</div>
+<div id="creating-the-rds-file" class="section level2">
+<h2><strong>3-) Creating the RDS File</strong></h2>
+<p><br></p>
+<p>        Two data we will mainly use is ready to merge and go ahead with the further analyses. We merge these two data by <code>Date</code> column and name it as <code>df</code>.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiZGYgPC0gbWVyZ2UoeD10cmFkZV92b2x1bWUsIHk9Z2FzX3ByaWNlcywgYnk9XCJEYXRlXCIpIn0= -->
+<pre class="r"><code>df &lt;- merge(x=trade_volume, y=gas_prices, by=&quot;Date&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p><br></p>
-<p>        As we did with the previous dataset we have to process the <code>Toplam</code> column since some values considered as 3 digit since they didn’t include a comma. We created the for loop below to achieve that goal.</p>
+<p>        Then, we saved merged df file as rds file named <code>natural_gas_data</code> so we all can use single and perfect data file.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiZm9yIChyb3cgaW4gMTpucm93KGdlbVtcIlRPUExBTVwiXSkpe1xuICBnZW1bXCJUT1BMQU1cIl1bcm93LCAxXSA8LSBnZW1bXCJUT1BMQU1cIl1bcm93LCAxXSAqIDEwMDBcbiAgaWYgKG5jaGFyKGdlbVtcIlRPUExBTVwiXVtyb3csIDFdKSA+PSA2KXtcbiAgICBnZW1bXCJUT1BMQU1cIl1bcm93LCAxXSA8LSBnZW1bXCJUT1BMQU1cIl1bcm93LCAxXSAvIDEwMDBcbiAgfVxufSJ9 -->
-<pre class="r"><code>for (row in 1:nrow(gem[&quot;TOPLAM&quot;])){
-  gem[&quot;TOPLAM&quot;][row, 1] &lt;- gem[&quot;TOPLAM&quot;][row, 1] * 1000
-  if (nchar(gem[&quot;TOPLAM&quot;][row, 1]) &gt;= 6){
-    gem[&quot;TOPLAM&quot;][row, 1] &lt;- gem[&quot;TOPLAM&quot;][row, 1] / 1000
-  }
-}</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><br></p>
-<p>        Once again, we subtract the columns we need and create a new data frame with them. We also excluded 16th of November since the corresponding value was missing.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiZ2VtIDwtIHN1YnNldChnZW0sIERhdGUgIT0gJzIwMjEtMTEtMTYnLCBzZWxlY3Q9YyhEYXRlLCBUT1BMQU0pKSJ9 -->
-<pre class="r"><code>gem &lt;- subset(gem, Date != &#39;2021-11-16&#39;, select=c(Date, TOPLAM))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><br></p>
-<p>        We merged two dataframe on <code>Date</code> column so they are ready for further analyses and processes. Lastly, we saved that dataframe as <code>data.rds</code> file.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImRmIDwtIG1lcmdlKGdhc19wcmljZXMsIGdlbSwgb249J0RhdGUnKSIsInNhdmVSRFMoZGYsIGZpbGU9J2RhdGEucmRzJykiXX0= -->
-<pre class="r"><code>df &lt;- merge(gas_prices, gem, on=&#39;Date&#39;)
-saveRDS(df, file=&#39;data.rds&#39;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoic2F2ZVJEUyhkZiwgXCJuYXR1cmFsX2dhc19kYXRhLnJkc1wiKSJ9 -->
+<pre class="r"><code>saveRDS(df, &quot;natural_gas_data.rds&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -540,9 +570,8 @@ saveRDS(df, file=&#39;data.rds&#39;)</code></pre>
 <!-- rnb-text-end -->
 </div>
 </div>
-</div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIioqQkRBLTUwMyBEaXZpc2lvbiBCZWxsIEdyb3VwIFByb2plY3QgJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IFByZS1wcm9jZXNzaW5nIHRoZSBEYXRhKioiDQphdXRob3I6ICIgX011cmF0IENhbiBUYcWfYXJfLCBfTmVqYXQgVcSfdXIgQWvEsW5fLCBfWXVudXMgRW1yZSBEb8SfYW5fLCBfRW1pcmhhbiDFnmFoaW5fIg0KZGF0ZTogImByIGZvcm1hdChTeXMudGltZSgpLCAnJUIgJWQsICVZJylgIg0Kb3V0cHV0Og0KICAgIGh0bWxfbm90ZWJvb2s6DQogICAgICAgIHRvYzogdHJ1ZQ0KICAgICAgICB0b2NfZGVwdGg6IDMNCiAgICAgICAgdG9jX2Zsb2F0Og0KICAgICAgICAgICAgY29sbGFwc2VkOiBmYWxzZQ0KLS0tDQo8YnI+DQo8c3R5bGU+DQojVE9DIHsNCiAgICBjb2xvcjogIzQwNDA0MDsNCiAgICBmb250LXNpemU6IDEzcHg7DQogICAgYm9yZGVyLWNvbG9yOiAjMDAwMDAwOw0KICAgIGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBzeXN0ZW0tdWksIEJsaW5rTWFjU3lzdGVtRm9udCwgIlNlZ29lIFVJIiwgUm9ib3RvLCBVYnVudHU7DQp9DQpoMS50aXRsZSB7DQogICAgY29sb3I6ICM0MDQwNDA7DQogICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIHN5c3RlbS11aSwgQmxpbmtNYWNTeXN0ZW1Gb250LCAiU2Vnb2UgVUkiLCBSb2JvdG8sIFVidW50dTsNCn0NCmg0LmF1dGhvciB7DQogICAgY29sb3I6ICM0MDQwNDA7DQogICAgZm9udC1zaXplOiAxMnB4Ow0KICAgIGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBzeXN0ZW0tdWksIEJsaW5rTWFjU3lzdGVtRm9udCwgIlNlZ29lIFVJIiwgUm9ib3RvLCBVYnVudHU7DQp9DQpoNC5kYXRlIHsNCiAgICBjb2xvcjogIzQwNDA0MDsNCiAgICBmb250LXNpemU6IDEycHg7DQogICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIHN5c3RlbS11aSwgQmxpbmtNYWNTeXN0ZW1Gb250LCAiU2Vnb2UgVUkiLCBSb2JvdG8sIFVidW50dTsNCn0NCmJvZHkgew0KICAgIGNvbG9yOiAjNjk2OTY5Ow0KICAgIGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBzeXN0ZW0tdWksIEJsaW5rTWFjU3lzdGVtRm9udCwgIlNlZ29lIFVJIiwgUm9ib3RvLCBVYnVudHU7DQogICAgYmFja2dyb3VuZC1jb2xvcjogI0Y1RjVGNTsNCiAgICBmb250LXNpemU6IDE2cHg7DQo8L3N0eWxlPg0KDQojICZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyA8c3BhbiBzdHlsZT0iY29sb3I6IzQwNDA0MCI+KipUdXJraXNoIE5hdHVyYWwgR2FzIE1hcmtldCoqPC9zcGFuPg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBJbiB0aGlzIHBhcnQgb2YgdGhlIHByb2plY3QsIHdlIHdpbGwgc3RhcnQgd2l0aCBsb2FkaW5nIG5lY2Vzc2FyeSBwYWNrYWdlcyBpbiB0aGUgYmFja2dyb3VuZCBhbmQgdGhlIGRhdGEgZmlsZXMgd2hpY2ggYXJlIFtHRU0uY3N2XShodHRwczovL3Bqb3VybmFsLmdpdGh1Yi5pby9tZWYwNWctZGl2aXNpb24tYmVsbC9HRU0uY3N2KSBhbmQgW0dSRi5jc3ZdKGh0dHBzOi8vcGpvdXJuYWwuZ2l0aHViLmlvL21lZjA1Zy1kaXZpc2lvbi1iZWxsL0dSRi5jc3YpLg0KDQpgYGB7ciwgaW5jbHVkZSA9IEZBTFNFfQ0KbGlicmFyeShyZWFkcikNCg0KbG9jYWxlID0gbG9jYWxlKGRlY2ltYWxfbWFyayA9ICIsIikNCmxvY2FsZSA9IGxvY2FsZShncm91cGluZ19tYXJrID0gIi4iKQ0KDQpvcHRpb25zKGRpZ2l0cz0xMikNCmxpYnJhcnkodGlkeXIpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShzdHJpbmdyKQ0KbGlicmFyeShsdWJyaWRhdGUpDQoNCnNldHdkKCdEOlxcRW1pclxcUHJvZ3JhbW1pbmdcXFZFTlZcXFJfZmlsZXNcXGRhdGFfYW5hbHl0aWNzXFxncm91cF9wcm9qZWN0JykNCmBgYA0KDQpgYGB7ciwgbWVzc2FnZSA9IEZBTFNFfQ0KZ2FzX3ByaWNlcyA8LSByZWFkLmNzdigiR1JGLmNzdiIsIHNlcD0nLCcsIGRlYz0nLCcpDQpnZW0gPC0gcmVhZC5jc3YoIkdFTS5jc3YiLCBzZXA9JywnLCBkZWM9Jy4nKQ0KYGBgDQoNCjxicj4NCg0KIyMgKioxLSkgR1JGIERhdGEqKg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBUaGlzIGRhdGEgY29udGFpbnMgZGFpbHkgZ2FzIHJlZmVyZW5jZSBwcmljZXMuIFRoaXMgZGF0YSBvYnRhaW5lZCBmcm9tIFtoZXJlXShodHRwczovL3NlZmZhZmxpay5lcGlhcy5jb20udHIvdHJhbnNwYXJlbmN5L2RvZ2FsZ2F6L3N0cC9zdHAtZ3JmLnhodG1sIykuDQoNCjxicj4NCg0KIyMjICoqYi0pIFN0cnVjdHVyZSBvZiB0aGUgRGF0YSoqDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IExldCdzIHNlZSB0aGUgc3RydWN0dXJlIG9mIHRoZSBkYXRhIGZyYW1lIGBHUkYuY3N2YC4NCg0KYGBge3J9DQpzdHIoZ2FzX3ByaWNlcykNCmBgYA0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBUYWtlIGEgbG9vayBpZiB0aGVyZSBpcyBhbnkgbWlzc2luZyB2YWx1ZXMuLg0KDQpgYGB7cn0NCnN1bShpcy5uYShnYXNfcHJpY2VzJEdSRikpDQpzdW0oaXMubmEoZ2FzX3ByaWNlcyRHYXouR3VudSkpDQpgYGANCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IEFzIHNlZW4gYWJvdmUgdGhlcmUgaXMgbm8gbWlzc2luZyB2YWx1ZS4NCg0KPGJyPg0KDQojIyMgKipiLSkgUHJvY2Vzc2luZyB0aGUgQ29sdW1ucyoqDQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBXZSBjaGFuZ2VkIGBHYXogR3VudWAgY29sdW1uIHRvIGBEYXRlYCBhbmQgZm9ybWF0IGl0IGFzIGRhdGUgZGF0YSB0eXBlLg0KDQpgYGB7cn0NCm5hbWVzKGdhc19wcmljZXMpW25hbWVzKGdhc19wcmljZXMpID09ICdHYXouR3VudSddIDwtICJEYXRlIg0KZ2FzX3ByaWNlcyREYXRlIDwtIGRteShnYXNfcHJpY2VzJERhdGUpDQpgYGANCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgQmVjYXVzZSBkb3QoKipgLmAqKiksIGlzIHVzZWQgYXMgdGhvdXNhbmQgc2VwYXJhdG9yIGFuZCBjb21tYSgqKmAsYCoqKSBhcyBkZWNpbWFsIHBvaW50IHdlIGhhZCB0byBkZWFsIHdpdGggaXQgZm9yIGZ1cnRoZXIgcHJvY2Vzc2VzLiBXZSBoYXZlIGFjaGlldmVkIHRoYXQgYnkgbWFudWFsbHkgc2VwZXJhdGluZyBzcGxpdHRpbmcgc3RyaW5ncyBpbnRvIHR3byBwYXJ0cy4gVGhlbiB3ZSBjb252ZXJ0ZWQgdGhvc2UgdHdvIGNvbHVtbnMgaW50byBudW1lcmljLg0KDQpgYGB7cn0NCmdhc19wcmljZXNbImJlZm9yZV9kZWNpbWFsIl0gPC0gc3RyX3NwbGl0X2ZpeGVkKGdhc19wcmljZXMkR1JGLCAiLCIsIDIpWywgMV0NCmdhc19wcmljZXNbImFmdGVyX2RlY2ltYWwiXSA8LSBzdHJfc3BsaXRfZml4ZWQoZ2FzX3ByaWNlcyRHUkYsICIsIiwgMilbLCAyXQ0KZ2FzX3ByaWNlc1siYmVmb3JlX2RlY2ltYWwiXSA8LSBhcy5udW1lcmljKGdhc19wcmljZXMkYmVmb3JlX2RlY2ltYWwpDQpnYXNfcHJpY2VzWyJhZnRlcl9kZWNpbWFsIl0gPC0gYXMubnVtZXJpYyhnYXNfcHJpY2VzJGFmdGVyX2RlY2ltYWwpDQpgYGANCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgVGhlIHJpZ2h0IHBhcnQgaW4gdGhlIGRlY2ltYWwgdmFsdWVzIHN1cHBvc2VkIHRvIGJlIDAgYnV0IHRoZXkgdHVybmVkIGFzIHdpdGhvdXQgemVyb3MgYmVmb3JlIHRoZSBkZWNpbWFsIG51bWJlci4gV2UgaGF2ZSBjb25zdHJ1Y3RlZCBhIGZvciBsb29wIGluIG9yZGVyIHRvIHJlcGxhY2UgdGhlIHplcm9zIHNvIHdlIGdldCB0aGUgY29ycmVjdCBudW1iZXJzLg0KDQpgYGB7cn0NCmZvcihyb3cgaW4gMTpucm93KGdhc19wcmljZXNbImFmdGVyX2RlY2ltYWwiXSkpew0KICBpZihuY2hhcihnYXNfcHJpY2VzWyJhZnRlcl9kZWNpbWFsIl1bcm93LCAxXSkgPT0gMSl7DQogICAgZ2FzX3ByaWNlc1siYWZ0ZXJfZGVjaW1hbCJdW3JvdywgMV0gPC0gcGFzdGUoMCwgZ2FzX3ByaWNlc1siYWZ0ZXJfZGVjaW1hbCJdW3JvdywgMV0sIHNlcD0iIikNCiAgfQ0KfQ0KYGBgDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IEluIHRoaXMgY2h1bmsgd2Ugc2ltcGx5IG11bHRpcGxpZWQgdGhlIGNvbHVtbiB3aXRoIDEwMDAgc28gaXQgdHVybnMgaW50byBhIHRlbnRoIG51bWJlci4gVGhlbiB3ZSBwYXN0ZWQgdHdvIGNvbHVtbnMgYW5kIHVzZWQgZG90KCoqYC5gKiopIGFzIGRlY2ltYWwgcG9pbnQuIEFmdGVyd2FyZHMsIHdlIGNvbnZlcnRlZCB0aGF0IGNvbHVtbiBpbnRvIGEgbnVtZXJpYyBkYXRhIHR5cGUuDQoNCmBgYHtyfQ0KZ2FzX3ByaWNlc1siYmVmb3JlX2RlY2ltYWwiXSA8LSBnYXNfcHJpY2VzWyJiZWZvcmVfZGVjaW1hbCJdICogMTAwMA0KZ2FzX3ByaWNlcyRncmYgPC0gcGFzdGUoZ2FzX3ByaWNlcyRiZWZvcmVfZGVjaW1hbCwgZ2FzX3ByaWNlcyRhZnRlcl9kZWNpbWFsLCBzZXA9Ii4iKQ0KZ2FzX3ByaWNlcyRncmYgPC0gYXMubnVtZXJpYyhnYXNfcHJpY2VzJGdyZikNCmBgYA0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBMYXN0bHksIHdlIGNyZWF0ZWQgYSBuZXcgZGF0YSBmcmFtZSB3aXRoIHRoZSBjb2x1bW5zIHRoYXQgd2Ugd2lsbCB1c2UgaW4gb3VyIGFuYWx5c2VzLg0KDQpgYGB7cn0NCmdhc19wcmljZXMgPC0gc3Vic2V0KGdhc19wcmljZXMsIHNlbGVjdD0tYyhHUkYsIGJlZm9yZV9kZWNpbWFsLCBhZnRlcl9kZWNpbWFsKSkNCmBgYA0KDQo8YnI+DQoNCiMjICoqMi0pIEdFTSBEYXRhKioNCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgVGhpcyBkYXRhIGNvbnRhaW5zIGRhaWx5IG1hdGNoZWQgYW1vdW50LiBUaGlzIGRhdGEgb2J0YWluZWQgZnJvbSBbaGVyZV0oaHR0cHM6Ly9zZWZmYWZsaWsuZXBpYXMuY29tLnRyL3RyYW5zcGFyZW5jeS9kb2dhbGdhei9zdHAvc3RwLWd1bmx1ay1lc2xlc21lLW1pa3Rhci54aHRtbCkuDQoNCjxicj4NCg0KIyMjICoqYi0pIFN0cnVjdHVyZSBvZiB0aGUgRGF0YSoqDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IExldCdzIHNlZSB0aGUgc3RydWN0dXJlIG9mIHRoZSBkYXRhIGZyYW1lIGBHRU0uY3N2YC4NCg0KYGBge3J9DQpzdHIoZ2VtKQ0KYGBgDQoNCjxicj4NCg0KIyMjICoqYi0pIFByb2Nlc3NpbmcgdGhlIENvbHVtbnMqKg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBGaXJzdGx5LCB3ZSBjaGFuZ2VkIGBLb250cmF0YCBjb2x1bW4gdG8gYERhdGVgLg0KDQpgYGB7cn0NCm5hbWVzKGdlbSlbbmFtZXMoZ2VtKSA9PSAnS29udHJhdCddIDwtICJEYXRlIg0KYGBgDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IEJlY2F1c2UgZGF0ZXMgYXJlIGNvZGVkIHdlIGhhdmUgdG8gZXh0cmFjdCB0aGUgc3BlY2lmaWMgZGF0ZSBmcm9tIHRoZSBkYXRlIGNvbHVtbiB3aGljaCBpbmNsdWRlcyBgR0dgIGluIHRoZSBiZWdpbmluZyBhbmQgaXMgc3RyaW5nLiBUaGVuIHB1dCB0aGF0IGludG8gYGNvbnRhaW5zX2RhdGVgIGNvbHVtbi4NCg0KYGBge3J9DQpnZW1bImNvbnRhaW5zX2RhdGUiXSA8LSBzdHJfc3BsaXRfZml4ZWQoZ2VtJERhdGUsICJHRyIsIDIpWywgMl0NCmBgYA0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBUaGVuIHdlIGZvcm1hdCBgY29udGFpbnNfZGF0ZWAgY29sdW1uIGFzIGRhdGUgZm9ybWF0IHdpdGggdGhlIHBhdHRlcm4gd2UgcmVxdWlyZS4NCg0KYGBge3J9DQpnZW1bIkRhdGUiXSA8LSBmb3JtYXQoYXMuRGF0ZShhcy5jaGFyYWN0ZXIoZ2VtJGNvbnRhaW5zX2RhdGUpLCBmb3JtYXQ9IiVZJW0lZCIpLCIlWS0lbS0lZCIpDQpnZW0kRGF0ZSA8LSBhcy5EYXRlKGdlbSREYXRlLCAiJVktJW0tJWQiKQ0KYGBgDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IEFzIHdlIGRpZCB3aXRoIHRoZSBwcmV2aW91cyBkYXRhc2V0IHdlIGhhdmUgdG8gcHJvY2VzcyB0aGUgYFRvcGxhbWAgY29sdW1uIHNpbmNlIHNvbWUgdmFsdWVzIGNvbnNpZGVyZWQgYXMgMyBkaWdpdCBzaW5jZSB0aGV5IGRpZG4ndCBpbmNsdWRlIGEgY29tbWEuIFdlIGNyZWF0ZWQgdGhlIGZvciBsb29wIGJlbG93IHRvIGFjaGlldmUgdGhhdCBnb2FsLg0KDQpgYGB7cn0NCmZvciAocm93IGluIDE6bnJvdyhnZW1bIlRPUExBTSJdKSl7DQogIGdlbVsiVE9QTEFNIl1bcm93LCAxXSA8LSBnZW1bIlRPUExBTSJdW3JvdywgMV0gKiAxMDAwDQogIGlmIChuY2hhcihnZW1bIlRPUExBTSJdW3JvdywgMV0pID49IDYpew0KICAgIGdlbVsiVE9QTEFNIl1bcm93LCAxXSA8LSBnZW1bIlRPUExBTSJdW3JvdywgMV0gLyAxMDAwDQogIH0NCn0NCmBgYA0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBPbmNlIGFnYWluLCB3ZSBzdWJ0cmFjdCB0aGUgY29sdW1ucyB3ZSBuZWVkIGFuZCBjcmVhdGUgYSBuZXcgZGF0YSBmcmFtZSB3aXRoIHRoZW0uIFdlIGFsc28gZXhjbHVkZWQgMTZ0aCBvZiBOb3ZlbWJlciBzaW5jZSB0aGUgY29ycmVzcG9uZGluZyB2YWx1ZSB3YXMgbWlzc2luZy4NCg0KYGBge3J9DQpnZW0gPC0gc3Vic2V0KGdlbSwgRGF0ZSAhPSAnMjAyMS0xMS0xNicsIHNlbGVjdD1jKERhdGUsIFRPUExBTSkpDQpgYGANCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgV2UgbWVyZ2VkIHR3byBkYXRhZnJhbWUgb24gYERhdGVgIGNvbHVtbiBzbyB0aGV5IGFyZSByZWFkeSBmb3IgZnVydGhlciBhbmFseXNlcyBhbmQgcHJvY2Vzc2VzLiBMYXN0bHksIHdlIHNhdmVkIHRoYXQgZGF0YWZyYW1lIGFzIGBkYXRhLnJkc2AgZmlsZS4NCg0KYGBge3J9DQpkZiA8LSBtZXJnZShnYXNfcHJpY2VzLCBnZW0sIG9uPSdEYXRlJykNCnNhdmVSRFMoZGYsIGZpbGU9J2RhdGEucmRzJykNCmBgYA0KDQoNCjxicj4NCjxicj4NCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7ICZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyAmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDtfX19UaGFua3MgZm9yIHJlYWRpbmcuLi5fX18NCjxicj4NCjxicj4NCiFbRGl2aXNpb24gQmVsbF0oaHR0cHM6Ly9oZHdhbGxwYXBlcmltLmNvbS93cC1jb250ZW50L3VwbG9hZHMvMjAxNy8wOC8yNC8xMTA0NjAtUGlua19GbG95ZC10aGVfZGl2aXNpb25fYmVsbC1tdXNpYy5qcGcpXA==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIioqQkRBLTUwMyBEaXZpc2lvbiBCZWxsIEdyb3VwIFByb2plY3QgJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IFByZS1wcm9jZXNzaW5nIHRoZSBEYXRhKioiDQphdXRob3I6ICIgX011cmF0IENhbiBUYcWfYXJfLCBfTmVqYXQgVcSfdXIgQWvEsW5fLCBfWXVudXMgRW1yZSBEb8SfYW5fLCBfRW1pcmhhbiDFnmFoaW5fIg0KZGF0ZTogImByIGZvcm1hdChTeXMudGltZSgpLCAnJUIgJWQsICVZJylgIg0Kb3V0cHV0Og0KICAgIGh0bWxfbm90ZWJvb2s6DQogICAgICAgIHRvYzogdHJ1ZQ0KICAgICAgICB0b2NfZGVwdGg6IDMNCiAgICAgICAgdG9jX2Zsb2F0Og0KICAgICAgICAgICAgY29sbGFwc2VkOiBmYWxzZQ0KLS0tDQo8YnI+DQo8c3R5bGU+DQojVE9DIHsNCiAgICBjb2xvcjogIzQwNDA0MDsNCiAgICBmb250LXNpemU6IDEzcHg7DQogICAgYm9yZGVyLWNvbG9yOiAjMDAwMDAwOw0KICAgIGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBzeXN0ZW0tdWksIEJsaW5rTWFjU3lzdGVtRm9udCwgIlNlZ29lIFVJIiwgUm9ib3RvLCBVYnVudHU7DQp9DQpoMS50aXRsZSB7DQogICAgY29sb3I6ICM0MDQwNDA7DQogICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIHN5c3RlbS11aSwgQmxpbmtNYWNTeXN0ZW1Gb250LCAiU2Vnb2UgVUkiLCBSb2JvdG8sIFVidW50dTsNCn0NCmg0LmF1dGhvciB7DQogICAgY29sb3I6ICM0MDQwNDA7DQogICAgZm9udC1zaXplOiAxMnB4Ow0KICAgIGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBzeXN0ZW0tdWksIEJsaW5rTWFjU3lzdGVtRm9udCwgIlNlZ29lIFVJIiwgUm9ib3RvLCBVYnVudHU7DQp9DQpoNC5kYXRlIHsNCiAgICBjb2xvcjogIzQwNDA0MDsNCiAgICBmb250LXNpemU6IDEycHg7DQogICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIHN5c3RlbS11aSwgQmxpbmtNYWNTeXN0ZW1Gb250LCAiU2Vnb2UgVUkiLCBSb2JvdG8sIFVidW50dTsNCn0NCmJvZHkgew0KICAgIGNvbG9yOiAjNjk2OTY5Ow0KICAgIGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBzeXN0ZW0tdWksIEJsaW5rTWFjU3lzdGVtRm9udCwgIlNlZ29lIFVJIiwgUm9ib3RvLCBVYnVudHU7DQogICAgYmFja2dyb3VuZC1jb2xvcjogI0Y1RjVGNTsNCiAgICBmb250LXNpemU6IDE2cHg7DQo8L3N0eWxlPg0KDQojICZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyA8c3BhbiBzdHlsZT0iY29sb3I6IzQwNDA0MCI+KipUdXJraXNoIE5hdHVyYWwgR2FzIE1hcmtldCoqPC9zcGFuPg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBXZSB3aWxsIHN0YXJ0IHRoaXMgcHJvamVjdCBieSBwcmVwcm9jZXNzaW5nIHRoZSBkYXRhIGZpbGVzIHNvIHdlIGNhbiBlbGltaW5hdGUgbm9pc3kgZGF0YSwgY29ycmVjdCB0aGUgZGF0YSBmb3JtYXQsIHJlbW92ZSBOQSB2YWx1ZXMgYW5kIGNsZWFuIHRoZSBkYXRhLiBXaXRoIHRoaXMgcHJvY2VkdXJlLCB3ZSB3aWxsIGNyZWF0ZSBhbiBSRFMgZmlsZSBzbyBpbiB0aGUgbmV4dCBwYXJ0cyBvZiBvdXIgcHJvamVjdCBpdCB3aWxsIGJlIGVhc2llciB0byBjb25kdWN0IHNvbWUgYW5hbHlzZXMgYW5kIGNyZWF0ZSBpbnNpZ2h0Lg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBCZWZvcmUgd2Ugc3RhcnQgdGhlIHByb2plY3QsIHdlIHdpbGwgYmVnaW4gd2l0aCBsb2FkaW5nIG5lY2Vzc2FyeSBwYWNrYWdlcyB0byBwcm9jZXNzIHRoZSBkYXRhIGZpbGVzIHdoaWNoIGFyZSBbR1JQLnhsc10oaHR0cHM6Ly9wam91cm5hbC5naXRodWIuaW8vbWVmMDVnLWRpdmlzaW9uLWJlbGwvR1JQLnhscykgYW5kIFtUVFYueGxzXShodHRwczovL3Bqb3VybmFsLmdpdGh1Yi5pby9tZWYwNWctZGl2aXNpb24tYmVsbC9UVFYueGxzKS4NCg0KYGBge3IsICBtZXNzYWdlID0gRkFMU0UsIHdhcm5pbmcgPSBGQUxTRX0NCmxpYnJhcnkodGlkeXIpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShzdHJpbmdyKQ0KbGlicmFyeShsdWJyaWRhdGUpDQpsaWJyYXJ5KGdncGxvdDIpDQpsaWJyYXJ5KHJlYWR4bCkNCmxpYnJhcnkodGliYmxlKQ0KbGlicmFyeShncmlkRXh0cmEpDQpgYGANCg0KPGJyPg0KDQojIyAqKjEtKSBHUlAgRGF0YSoqDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IFRoaXMgZGF0YSBjb250YWlucyBkYWlseSBnYXMgcmVmZXJlbmNlIHByaWNlcyBiZXR3ZWVuIDAxLzA5LzIwMTggYW5kIDAxLzEyLzIwMjEuIFRoZSBkYXRhIG9idGFpbmVkIGZyb20gW2hlcmVdKGh0dHBzOi8vc2VmZmFmbGlrLmVwaWFzLmNvbS50ci90cmFuc3BhcmVuY3kvZG9nYWxnYXovc3RwL3N0cC1ncmYueGh0bWwjKS4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IFdlIHByb2NlZWQgdG8gcmVhZCB0aGUgeGxzIGRhdGEgZmlsZS4NCg0KYGBge3IsIG1lc3NhZ2UgPSBGQUxTRX0NCmdhc19wcmljZXMgPC0gcmVhZF9leGNlbCgiR1JQLnhscyIpDQpgYGANCg0KPGJyPg0KDQojIyMgKiphLSkgU3RydWN0dXJlIG9mIHRoZSBEYXRhKioNCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgTGV0J3Mgc2VlIHRoZSBzdHJ1Y3R1cmUgb2YgdGhlIGRhdGEgZmlsZSBgR1JQLnhsc2AuDQoNCmBgYHtyfQ0Kc3RyKGdhc19wcmljZXMpDQpgYGANCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IEFzIHNlZW4gYWJvdmUgdGhlIGRhdGEgdHlwZSBpbiBjb2x1bW5zIGFyZSBpbmFwcHJvcHJpYXRlIHNvIHdlIGhhdmUgdG8gY2hhbmdlIHRoZW0uDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IFdlIGFsc28gc2VlIHRoYXQgY2hhbmdlIHRoZSBjb2x1bW4gbmFtZXMgc2luY2UgdGhleSBhcmUgaW4gVHVya2lzaC4gV2UgY2hhbmdlZCBgR2F6IEfDvG7DvGAgY29sdW1uIHRvIGBEYXRlYCBhbmQgYEdSRmAgY29sdW1uIHRvIGBHYXNfUmVmZXJlbmNlX1ByaWNlYC4gIFRoZW4gdGFrZSBhIGxvb2sgaWYgdGhlcmUgaXMgYW55IG1pc3NpbmcgdmFsdWVzLg0KDQpgYGB7cn0NCm5hbWVzKGdhc19wcmljZXMpIDwtIGMoJ0RhdGUnLA0KICAgICAgICAgICAgICAgICAgICAgICAnR2FzX1JlZmVyZW5jZV9QcmljZScpDQoNCnN1bShpcy5uYShnYXNfcHJpY2VzJEdhc19SZWZlcmVuY2VfUHJpY2UpKQ0Kc3VtKGlzLm5hKGdhc19wcmljZXMkRGF0ZSkpDQpgYGANCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IEFzIHNlZW4gYWJvdmUgdGhlcmUgaXMgbm8gbWlzc2luZyB2YWx1ZS4NCg0KPGJyPg0KDQojIyMgKipiLSkgUHJvY2Vzc2luZyB0aGUgQ29sdW1ucyoqDQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyAgV2UgdGhlbiBwcm9jZWVkIHRvIGZvcm1hdCB0aGUgRGF0ZSBjb2x1bW4gYXMgZGF0ZSBmb3JtYXQgdHlwZSB1c2luZyBsdWJyaWRhdGUuDQoNCmBgYHtyfQ0KZ2FzX3ByaWNlcyREYXRlIDwtIGRteShnYXNfcHJpY2VzJERhdGUpDQpgYGANCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgQmVjYXVzZSBkb3QoKipgLmAqKiksIGlzIHVzZWQgYXMgdGhvdXNhbmQgc2VwYXJhdG9yIGFuZCBjb21tYSgqKmAsYCoqKSBhcyBkZWNpbWFsIHBvaW50IHdlIGhhZCB0byBkZWFsIHdpdGggaXQgZm9yIGZ1cnRoZXIgcHJvY2Vzc2VzLiBXZSBoYXZlIGFjaGlldmVkIHRoYXQgYnkgdXNpbmcgZ3N1YiBmdW5jdGlvbi4gVGhlbiB3ZSBjb252ZXJ0ZWQgaXQgaW50byBudW1lcmljLg0KDQpgYGB7cn0NCmdhc19wcmljZXMkR2FzX1JlZmVyZW5jZV9QcmljZSA8LSBnc3ViKCcuJywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICcnLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ2FzX3ByaWNlcyRHYXNfUmVmZXJlbmNlX1ByaWNlLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZml4ZWQgPSBUUlVFKQ0KZ2FzX3ByaWNlcyRHYXNfUmVmZXJlbmNlX1ByaWNlIDwtIGFzLm51bWVyaWMoZ3N1YignLCcsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICcuJywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ2FzX3ByaWNlcyRHYXNfUmVmZXJlbmNlX1ByaWNlLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBmaXhlZCA9IFRSVUUpKQ0KYGBgDQoNCjxicj4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IE5vdyBpZiB3ZSB0YWtlIGEgbG9vayBhdCB0aGUgZGF0YSB3ZSB3aWxsIHNlZSBldmVyeXRoaW5nIGlzIHJlYWR5IHRvIGFuYWx5c2lzLg0KDQpgYGB7cn0NCmhlYWQoZ2FzX3ByaWNlcykNCmBgYA0KDQo8YnI+DQoNCiMjICoqMi0pIFRUViBEYXRhKioNCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgVGhpcyBkYXRhIGNvbnRhaW5zIGRhaWx5IGdhcyB0cmFkZSB2b2x1bWUgYmV0d2VlbiAwMS8wOS8yMDE4IGFuZCAwMS8xMi8yMDIxLiBUaGUgZGF0YSBvYnRhaW5lZCBmcm9tIFtoZXJlXShodHRwczovL3NlZmZhZmxpay5lcGlhcy5jb20udHIvdHJhbnNwYXJlbmN5L2RvZ2FsZ2F6L3N0cC9zdHAtdG9wbGFtLWlzbGVtLWhhY21pLnhodG1sKS4NCg0KJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IE9uY2UgYWdhaW4sIHdlIHByb2NlZWQgdG8gcmVhZCB0aGUgeGxzIGRhdGEgZmlsZS4NCg0KYGBge3IsIG1lc3NhZ2UgPSBGQUxTRX0NCnRyYWRlX3ZvbHVtZSA8LSByZWFkX2V4Y2VsKCJUVFYueGxzIikNCmBgYA0KDQo8YnI+DQoNCiMjIyAqKmEtKSBTdHJ1Y3R1cmUgb2YgdGhlIERhdGEqKg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBMZXQncyBzZWUgdGhlIHN0cnVjdHVyZSBvZiB0aGUgZGF0YSBmaWxlIGBUVFYueGxzYC4NCg0KYGBge3J9DQpzdHIodHJhZGVfdm9sdW1lKQ0KYGBgDQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBBcyBzZWVuIGFib3ZlIHRoZSBkYXRhIHR5cGVzIGluIGNvbHVtbnMgYXJlIGNoYXJhY3RlciBzbyB3ZSBoYXZlIHRvIGNoYW5nZSB0aGVtLg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBXZSBjYW4gYWxzbyBzZWUgdGhhdCBqdXN0IGxpa2UgcHJldmlvdXMgZGF0YSB0aGUgY29sdW1uIG5hbWVzIGFyZSBpbmFwcHJvcHJpYXRlLiBXZSBjaGFuZ2VkIGBHYXogR8O8bsO8YCBjb2x1bW4gdG8gYERhdGVgIGFuZCBgVG9wbGFtIElzbGVtIEhhY21pYCBjb2x1bW4gdG8gYFRvdGFsX1RyYWRlX1ZvbHVtZWAuIExhc3RseSwgb2YgY291cnNlIHdlIHRvb2sgYSBsb29rIGlmIHRoZXJlIGlzIGFueSBtaXNzaW5nIHZhbHVlcy4NCg0KYGBge3J9DQpuYW1lcyh0cmFkZV92b2x1bWUpIDwtIGMoJ0RhdGUnLA0KICAgICAgICAgICAgICAgICAgICAgICAgICdUb3RhbF9UcmFkZV9Wb2x1bWUnKQ0KDQpzdW0oaXMubmEodHJhZGVfdm9sdW1lJFRvdGFsX1RyYWRlX1ZvbHVtZSkpDQpzdW0oaXMubmEodHJhZGVfdm9sdW1lJERhdGUpKQ0KYGBgDQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBBcyBzZWVuIGFib3ZlIHRoZXJlIGlzIG5vIG1pc3NpbmcgdmFsdWUuDQoNCjxicj4NCg0KIyMjICoqYi0pIFByb2Nlc3NpbmcgdGhlIENvbHVtbnMqKg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgIFdlIHByb2NlZWQgdG8gZm9ybWF0IHRoZSBgRGF0ZWAgY29sdW1uIGFzIGRhdGUgZm9ybWF0Lg0KDQpgYGB7cn0NCnRyYWRlX3ZvbHVtZSREYXRlIDwtIGRteSh0cmFkZV92b2x1bWUkRGF0ZSkNCmBgYA0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBKdXN0IGxpa2UgdGhlIHByZXZpb3VzIGRhdGFzZXQgZG90KCoqYC5gKiopLCBpcyB1c2VkIGFzIHRob3VzYW5kIHNlcGFyYXRvciBhbmQgY29tbWEoKipgLGAqKikgYXMgZGVjaW1hbCBwb2ludCBpbiB0aGlzIGRhdGEuIFdlIGhhdmUgc29sdmVkIHRoYXQgaXNzdWUgYnkgdXNpbmcgZ3N1YiBmdW5jdGlvbi4gVGhlbiB3ZSBjb252ZXJ0ZWQgaXQgaW50byBudW1lcmljLg0KDQpgYGB7cn0NCnRyYWRlX3ZvbHVtZSRUb3RhbF9UcmFkZV9Wb2x1bWUgPC0gZ3N1YignLicsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAnJywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRyYWRlX3ZvbHVtZSRUb3RhbF9UcmFkZV9Wb2x1bWUsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBmaXhlZCA9IFRSVUUpDQp0cmFkZV92b2x1bWUkVG90YWxfVHJhZGVfVm9sdW1lIDwtIGFzLm51bWVyaWMoZ3N1YignLCcsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICcuJywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdHJhZGVfdm9sdW1lJFRvdGFsX1RyYWRlX1ZvbHVtZSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZml4ZWQgPSBUUlVFKSkNCmBgYA0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBMZXQncyB0YWtlIGEgbG9vayBhdCB0aGUgZGF0YSwgZXZlcnl0aGluZyBzaG91bGQgYmUgcmVhZHkgdG8gYW5hbHlzaXMuDQoNCmBgYHtyfQ0KaGVhZCh0cmFkZV92b2x1bWUpDQpgYGANCg0KPGJyPg0KDQojIyAqKjMtKSBDcmVhdGluZyB0aGUgUkRTIEZpbGUqKg0KDQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBUd28gZGF0YSB3ZSB3aWxsIG1haW5seSB1c2UgaXMgcmVhZHkgdG8gbWVyZ2UgYW5kIGdvIGFoZWFkIHdpdGggdGhlIGZ1cnRoZXIgYW5hbHlzZXMuIFdlIG1lcmdlIHRoZXNlIHR3byBkYXRhIGJ5IGBEYXRlYCBjb2x1bW4gYW5kIG5hbWUgaXQgYXMgYGRmYC4NCg0KYGBge3J9DQpkZiA8LSBtZXJnZSh4PXRyYWRlX3ZvbHVtZSwgeT1nYXNfcHJpY2VzLCBieT0iRGF0ZSIpDQpgYGANCg0KPGJyPg0KDQombmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgVGhlbiwgd2Ugc2F2ZWQgbWVyZ2VkIGRmIGZpbGUgYXMgcmRzIGZpbGUgbmFtZWQgYG5hdHVyYWxfZ2FzX2RhdGFgIHNvIHdlIGFsbCBjYW4gdXNlIHNpbmdsZSBhbmQgcGVyZmVjdCBkYXRhIGZpbGUuDQoNCmBgYHtyfQ0Kc2F2ZVJEUyhkZiwgIm5hdHVyYWxfZ2FzX2RhdGEucmRzIikNCmBgYA0KDQo8YnI+DQo8YnI+DQo8YnI+DQoNCiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyAmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7X19fVGhhbmtzIGZvciByZWFkaW5nLi4uX19fDQo8YnI+DQo8YnI+DQohW0RpdmlzaW9uIEJlbGxdKGh0dHBzOi8vaGR3YWxscGFwZXJpbS5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTcvMDgvMjQvMTEwNDYwLVBpbmtfRmxveWQtdGhlX2RpdmlzaW9uX2JlbGwtbXVzaWMuanBnKVw=</div>
 
 
 </div>
@@ -591,7 +620,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("pre_process.rmd");
+  window.initializeSourceEmbed("pre_processed.rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

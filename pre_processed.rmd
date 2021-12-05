@@ -1,0 +1,239 @@
+---
+title: "**BDA-503 Division Bell Group Project &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Pre-processing the Data**"
+author: " _Murat Can Taşar_, _Nejat Uğur Akın_, _Yunus Emre Doğan_, _Emirhan Şahin_"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+    html_notebook:
+        toc: true
+        toc_depth: 3
+        toc_float:
+            collapsed: false
+---
+<br>
+<style>
+#TOC {
+    color: #404040;
+    font-size: 13px;
+    border-color: #000000;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h1.title {
+    color: #404040;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h4.author {
+    color: #404040;
+    font-size: 12px;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h4.date {
+    color: #404040;
+    font-size: 12px;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+body {
+    color: #696969;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+    background-color: #F5F5F5;
+    font-size: 16px;
+</style>
+
+# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#404040">**Turkish Natural Gas Market**</span>
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; We will start this project by preprocessing the data files so we can eliminate noisy data, correct the data format, remove NA values and clean the data. With this procedure, we will create an RDS file so in the next parts of our project it will be easier to conduct some analyses and create insight.
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Before we start the project, we will begin with loading necessary packages to process the data files which are [GRP.xls](https://pjournal.github.io/mef05g-division-bell/GRP.xls) and [TTV.xls](https://pjournal.github.io/mef05g-division-bell/TTV.xls).
+
+```{r,  message = FALSE, warning = FALSE}
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tibble)
+library(gridExtra)
+```
+
+<br>
+
+## **1-) GRP Data**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This data contains daily gas reference prices between 01/09/2018 and 01/12/2021. The data obtained from [here](https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-grf.xhtml#).
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; We proceed to read the xls data file.
+
+```{r, message = FALSE}
+gas_prices <- read_excel("GRP.xls")
+```
+
+<br>
+
+### **a-) Structure of the Data**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Let's see the structure of the data file `GRP.xls`.
+
+```{r}
+str(gas_prices)
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As seen above the data type in columns are inappropriate so we have to change them.
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; We also see that change the column names since they are in Turkish. We changed `Gaz Günü` column to `Date` and `GRF` column to `Gas_Reference_Price`.  Then take a look if there is any missing values.
+
+```{r}
+names(gas_prices) <- c('Date',
+                       'Gas_Reference_Price')
+
+sum(is.na(gas_prices$Gas_Reference_Price))
+sum(is.na(gas_prices$Date))
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As seen above there is no missing value.
+
+<br>
+
+### **b-) Processing the Columns**
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  We then proceed to format the Date column as date format type using lubridate.
+
+```{r}
+gas_prices$Date <- dmy(gas_prices$Date)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Because dot(**`.`**), is used as thousand separator and comma(**`,`**) as decimal point we had to deal with it for further processes. We have achieved that by using gsub function. Then we converted it into numeric.
+
+```{r}
+gas_prices$Gas_Reference_Price <- gsub('.',
+                                       '',
+                                       gas_prices$Gas_Reference_Price,
+                                       fixed = TRUE)
+gas_prices$Gas_Reference_Price <- as.numeric(gsub(',',
+                                                  '.',
+                                                  gas_prices$Gas_Reference_Price,
+                                                  fixed = TRUE))
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Now if we take a look at the data we will see everything is ready to analysis.
+
+```{r}
+head(gas_prices)
+```
+
+<br>
+
+## **2-) TTV Data**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This data contains daily gas trade volume between 01/09/2018 and 01/12/2021. The data obtained from [here](https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-toplam-islem-hacmi.xhtml).
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Once again, we proceed to read the xls data file.
+
+```{r, message = FALSE}
+trade_volume <- read_excel("TTV.xls")
+```
+
+<br>
+
+### **a-) Structure of the Data**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Let's see the structure of the data file `TTV.xls`.
+
+```{r}
+str(trade_volume)
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As seen above the data types in columns are character so we have to change them.
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; We can also see that just like previous data the column names are inappropriate. We changed `Gaz Günü` column to `Date` and `Toplam Islem Hacmi` column to `Total_Trade_Volume`. Lastly, of course we took a look if there is any missing values.
+
+```{r}
+names(trade_volume) <- c('Date',
+                         'Total_Trade_Volume')
+
+sum(is.na(trade_volume$Total_Trade_Volume))
+sum(is.na(trade_volume$Date))
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As seen above there is no missing value.
+
+<br>
+
+### **b-) Processing the Columns**
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  We proceed to format the `Date` column as date format.
+
+```{r}
+trade_volume$Date <- dmy(trade_volume$Date)
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Just like the previous dataset dot(**`.`**), is used as thousand separator and comma(**`,`**) as decimal point in this data. We have solved that issue by using gsub function. Then we converted it into numeric.
+
+```{r}
+trade_volume$Total_Trade_Volume <- gsub('.',
+                                       '',
+                                       trade_volume$Total_Trade_Volume,
+                                       fixed = TRUE)
+trade_volume$Total_Trade_Volume <- as.numeric(gsub(',',
+                                                  '.',
+                                                  trade_volume$Total_Trade_Volume,
+                                                  fixed = TRUE))
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Let's take a look at the data, everything should be ready to analysis.
+
+```{r}
+head(trade_volume)
+```
+
+<br>
+
+## **3-) Creating the RDS File**
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Two data we will mainly use is ready to merge and go ahead with the further analyses. We merge these two data by `Date` column and name it as `df`.
+
+```{r}
+df <- merge(x=trade_volume, y=gas_prices, by="Date")
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then, we saved merged df file as rds file named `natural_gas_data` so we all can use single and perfect data file.
+
+```{r}
+saveRDS(df, "natural_gas_data.rds")
+```
+
+<br>
+<br>
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;___Thanks for reading...___
+<br>
+<br>
+![Division Bell](https://hdwallpaperim.com/wp-content/uploads/2017/08/24/110460-Pink_Floyd-the_division_bell-music.jpg)\
