@@ -1,5 +1,12 @@
 # Division Bell
 
+## Group Members
+
+* [Emirhan Şahin](https://pjournal.github.io/mef05-liophire/) 
+* [Murat Can Taşar](https://pjournal.github.io/mef05-mctasar/) 
+* [Nejat Uğur Akın](https://pjournal.github.io/mef05-nejatugurakin/)
+* [Yunus Emre Doğan](https://pjournal.github.io/mef05-yunusemre91/)
+
 ## Group Assignment
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can take a look at the Shiny App created by using Izmir's Fish Market data by clicking ***[here](https://divisionbell.shinyapps.io/fishprice/)***.
