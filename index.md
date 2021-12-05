@@ -2,10 +2,10 @@
 
 ## Group Members
 
-* [Emirhan Şahin](https://pjournal.github.io/mef05-liophire/) 
-* [Murat Can Taşar](https://pjournal.github.io/mef05-mctasar/) 
-* [Nejat Uğur Akın](https://pjournal.github.io/mef05-nejatugurakin/)
-* [Yunus Emre Doğan](https://pjournal.github.io/mef05-yunusemre91/)
+* **[Emirhan Şahin](https://pjournal.github.io/mef05-liophire/)**
+* **[Murat Can Taşar](https://pjournal.github.io/mef05-mctasar/)**
+* **[Nejat Uğur Akın](https://pjournal.github.io/mef05-nejatugurakin/)**
+* **[Yunus Emre Doğan](https://pjournal.github.io/mef05-yunusemre91/)**
 
 ## Group Assignment
 
