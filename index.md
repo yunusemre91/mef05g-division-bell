@@ -8,4 +8,4 @@
 
 ### 1-) Preprocessing
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can see first part of our group project by clicking ***[here](https://pjournal.github.io/mef05g-division-bell/pre_process.nb.html)***. As a result of our preprocessing, we have obtained the ***[.rds file](https://pjournal.github.io/mef05g-division-bell/data.rds)*** which will be used further on.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can see first part of our group project by clicking ***[here](https://pjournal.github.io/mef05g-division-bell/pre_processed.nb.html)***. As a result of our preprocessing, we have obtained the ***[.rds file](https://pjournal.github.io/mef05g-division-bell/natural_gas_data.rds)*** which will be used further on.
