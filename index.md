@@ -1,6 +1,6 @@
 # Division Bell
 
-## Group Members
+## Progress Journals of the Group Members
 
 * **[Emirhan Şahin](https://pjournal.github.io/mef05-liophire/)**
 * **[Murat Can Taşar](https://pjournal.github.io/mef05-mctasar/)**
