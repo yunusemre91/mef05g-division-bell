@@ -43,15 +43,19 @@ The source data files are 2 XLS files which are obtained from EPIAS' **[Transpar
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
 
-### 4-) Presentation File
+### 4-) Presentation Xaringan File
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 4th part of our group project, we have prepared a Xaringan file for our group project presentation. This Xaringan file consists of output of our data analysis. Click ***[here](https://pjournal.github.io/mef05g-division-bell/)*** to see the Xaringan Presentation File.
 
 ### 5-) Final Report
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 5th part of our group project, we have completed our all of our analysis and created a final report in two different page format. Click ***[here](https://pjournal.github.io/mef05g-division-bell/final_report.nb.html)*** for HTML format. Click ***[here](https://pjournal.github.io/mef05g-division-bell/final_report.pdf)*** for PDF format. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 5th part of our group project, we have completed all of our analysis and created a final report in two different page format. Click ***[here](https://pjournal.github.io/mef05g-division-bell/final_report.nb.html)*** for HTML format. Click ***[here](https://pjournal.github.io/mef05g-division-bell/final_report.pdf)*** for PDF format. 
 
-### 6-) Blog Post
+### 6-) Shiny App
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+
+### 7-) Blog Post
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
 
