@@ -8,7 +8,10 @@ library(tibble)
 library(gridExtra)
 
 setwd("D:\\Emir\\Programming\\VENV\\R_files\\data_analytics\\group_project")
+
 gas_prices <- read_excel("GRP.xls")
+
+str(gas_prices)
 
 names(gas_prices) <- c('Date',
                        'Gas_Reference_Price')
@@ -23,9 +26,14 @@ gas_prices$Gas_Reference_Price <- as.numeric(gsub(',',
                                                   fixed = TRUE))
 gas_prices$Date <- dmy(gas_prices$Date)
 
-view(gas_prices)
+sum(is.na(gas_prices$Gas_Reference_Price))
+sum(is.na(gas_prices$Date))
+
+head(gas_prices)
 
 trade_volume <- read_excel("TTV.xls")
+
+str(trade_volume)
 
 names(trade_volume) <- c('Date',
                          'Total_Trade_Volume')
@@ -40,7 +48,10 @@ trade_volume$Total_Trade_Volume <- as.numeric(gsub(',',
                                                   fixed = TRUE))
 trade_volume$Date <- dmy(trade_volume$Date)
 
-view(trade_volume)
+sum(is.na(trade_volume$Total_Trade_Volume))
+sum(is.na(trade_volume$Date))
+
+head(trade_volume)
 
 trade_volume$week_num <- strftime((trade_volume$Date), format = "%V")
 trade_volume$week_num <- as.numeric(trade_volume$week_num)
@@ -71,4 +82,5 @@ for(row in seq_len(nrow(trade_volume["Date"]))){
 trade_volume["season"] <- seasons
 
 df <- merge(x=trade_volume, y=gas_prices, by='Date')
+head(df)
 saveRDS(df, "natural_gas_data.rds")
