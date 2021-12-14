@@ -1,3 +1,11 @@
+<style>
+body {
+    color: #696969;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+    background-color: #F5F5F5;
+    font-size: 14px;
+</style>
+
 # Division Bell
 
 ## Progress Journals of the Group Members
