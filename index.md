@@ -8,7 +8,7 @@ body {
 
 # Division Bell
 
-![Division Bell](https://hdwallpaperim.com/wp-content/uploads/2017/08/24/110460-Pink_Floyd-the_division_bell-music.jpg)\
+![Division Bell](https://hdwallpaperim.com/wp-content/uploads/2017/08/24/110460-Pink_Floyd-the_division_bell-music.jpg)
 
 ## Progress Journals of the Group Members
 
