@@ -21,10 +21,29 @@ This project explains some insights about **Natural Gas Market in Turkey** and a
 
 The source data is 2 CSV files which are obtained from EPIAS' **[transparency platform website.](https://seffaflik.epias.com.tr/transparency/)**
 
-### 1-) Preprocessing
+### 1-) Pre-processing Phase
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can see the first part of our group project by clicking ***[here](https://pjournal.github.io/mef05g-division-bell/pre_processed.nb.html)***. As a result of our preprocessing, we have obtained the ***[.rds file](https://pjournal.github.io/mef05g-division-bell/natural_gas_data.rds)*** which will be used further on.
 
-### 2-) Exploratory Data Analysis
+### 2-) Exploratory Data Analysis Report
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the second part of our group project, we have created an EDA report. You can see the HTML page of the report by clicking ***[here](https://pjournal.github.io/mef05g-division-bell/eda.nb.html)***.
+
+### 3-) Teaser Video
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+
+### 4-) Presentation File
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+
+### 5-) Final Report
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+
+### 6-) Blog Post
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+
+
+
