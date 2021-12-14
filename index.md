@@ -29,7 +29,7 @@ This project explains some insights about **Natural Gas Market in Turkey** and a
 * We visualized values of Gas Reference Price and Total Trade Volume of years 2018, 2019, 2020, and 2021 as well as their average and change depending on different time periods.
 * We also analyzed some critical points that carry anomalies such as daily and monthly maximums and minimums.
 
-The source data is 2 CSV files which are obtained from EPIAS' **[Transparency Platform website.](https://seffaflik.epias.com.tr/transparency/)**
+The source data files are 2 XLS files which are obtained from EPIAS' **[Transparency Platform website.](https://seffaflik.epias.com.tr/transparency/)**
 
 ### 1-) Pre-processing Phase
 
