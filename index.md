@@ -49,7 +49,7 @@ The source data files are 2 XLS files which are obtained from EPIAS' **[Transpar
 
 ### 5-) Final Report
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 5th part of our group project, we have completed our all of our analysis and created a final report in two different page format. Click ***[here](https://pjournal.github.io/mef05g-division-bell/final_report.nb.html)*** for HTML format. Click ***[here](https://pjournal.github.io/mef05g-division-bell/final_report.pdf)*** for PDF format. 
 
 ### 6-) Blog Post
 
