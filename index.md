@@ -7,11 +7,19 @@
 * **[Nejat Uğur Akın](https://pjournal.github.io/mef05-nejatugurakin/)**
 * **[Yunus Emre Doğan](https://pjournal.github.io/mef05-yunusemre91/)**
 
-## Group Assignment
+## Group Assignment - Izmir Fish Market
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can take a look at the Shiny App created by using Izmir's Fish Market data by clicking ***[here](https://divisionbell.shinyapps.io/fishprice/)***.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can take a look at the Shiny App created by using Izmir's Fish Market data by clicking ***[here](https://divisionbell.shinyapps.io/fishprice/)***. The source data is a CSV file which is obtained from Izmir Metropolitan Municipality's **[Open Data website.](https://acikveri.bizizmir.com/en/dataset/balik-hal-fiyatlari/resource/022e9a4d-b184-495f-8dc2-734fb07e350c=)**
 
 ## Group Project
+
+This project explains some insights about **Natural Gas Market in Turkey** and all the processes that were completed in order to obtain the results.
+
+* Our main goal is to express current values and changes in both datasets which include Gas Reference Prices and Total Trade Volumes for the years 2018, 2019, 2020, and 2021.
+* We visualized values of Gas Reference Price and Total Trade Volume of years 2018, 2019, 2020, and 2021 as well as their average and change depending on different time periods.
+* We also analyzed some critical points that carry anomalies such as daily and monthly maximums and minimums.
+
+The source data is 2 CSV files which are obtained from EPIAS' **[transparency platform website.](https://seffaflik.epias.com.tr/transparency/)**
 
 ### 1-) Preprocessing
 
