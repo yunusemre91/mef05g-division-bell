@@ -11,7 +11,7 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You can take a look at the Shiny App created by using Izmir's Fish Market data by clicking ***[here](https://divisionbell.shinyapps.io/fishprice/)***. The source data is a CSV file which is obtained from Izmir Metropolitan Municipality's **[Open Data website.](https://acikveri.bizizmir.com/en/dataset/balik-hal-fiyatlari/resource/022e9a4d-b184-495f-8dc2-734fb07e350c=)**
 
-## Group Project
+## Group Project - Natural Gas Market in Turkey 
 
 This project explains some insights about **Natural Gas Market in Turkey** and all the processes that were completed in order to obtain the results.
 
