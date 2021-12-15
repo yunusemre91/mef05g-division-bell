@@ -56,7 +56,8 @@ The source data files are 2 XLS files which are obtained from EPIAS' **[Transpar
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 6th part of the project, we have completed our ShinyApp. Click ***[here](https://divisionbell.shinyapps.io/NaturalGasMarket/)*** for our **ShinyApp**.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To run this app from a Shiny application, run the code below:
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ***shiny::runGitHub("pjournal/mef05g-division-bell",subdir="Natural Gas Market/", ref = "gh-pages")***
+
+***shiny::runGitHub("pjournal/mef05g-division-bell",subdir="Natural Gas Market/", ref = "gh-pages")***
 
 ### 7-) Blog Post
 
