@@ -53,7 +53,8 @@ The source data files are 2 XLS files which are obtained from EPIAS' **[Transpar
 
 ### 6-) Shiny App
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+**[Shiny App](https://divisionbell.shinyapps.io/NaturalGasMarket/)**
+
 
 ### 7-) Blog Post
 
