@@ -1,0 +1,737 @@
+---
+title: "Turkish Natural Gas Market"
+author: "Division Bell"
+institute: "MEF UNIVERSITY"
+date: "2021/12/15"
+output:
+   xaringan::moon_reader:
+    css: [default, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: trues
+      countIncrementalSlides: false
+      slideClass: [animated, fadeIn]  
+---
+``` {r data, include = FALSE}
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(gridExtra)
+library(ggrepel)
+library(readr)
+
+
+df <- read_rds("https://raw.githubusercontent.com/pjournal/mef05g-division-bell/gh-pages/natural_gas_data.rds")
+
+# HAFTALIK OLARAK GRUPLAMA
+
+weekly_grouped <- df %>%
+  group_by(year_num, week_num) %>%
+  summarise(Weekly_Average_GRP = mean(Gas_Reference_Price),
+            Weekly_Average_TTV = mean(Total_Trade_Volume)) %>%
+  ungroup()
+
+# AYLIK OLARAK GRUPLAMA
+
+monthly_grouped <- df %>%
+  group_by(year_num, month_num) %>%
+  summarise(Monthly_Average_GRP = mean(Gas_Reference_Price),
+            Monthly_Average_TTV = mean(Total_Trade_Volume)) %>%
+  ungroup()
+
+# HAFTALIK GRP VE TTV DEĞİŞİMİ HESAPLAMA
+
+change_weekly <- weekly_grouped %>%
+  mutate(change_GRP =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Weekly_Average_GRP - lag(Weekly_Average_GRP)) / lag(Weekly_Average_GRP) * 100),
+  change_TTV =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Weekly_Average_TTV - lag(Weekly_Average_TTV)) / lag(Weekly_Average_TTV) * 100))
+
+# AYLIK GRP VE TTV DEĞİŞİMİ HESAPLAMA
+
+change_monthly <- monthly_grouped %>%
+  mutate(change_GRP =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Monthly_Average_GRP - lag(Monthly_Average_GRP)) / lag(Monthly_Average_GRP) * 100),
+  change_TTV =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Monthly_Average_TTV - lag(Monthly_Average_TTV)) / lag(Monthly_Average_TTV) * 100))
+
+# YILLAR DAHA RAHAT ANLAŞILSIN DİYE RENK DEĞİŞİMİ
+
+options(ggplot2.continuous.colour="viridis")
+options(ggplot2.continuous.fill = "viridis")
+
+df<- df %>% mutate(months = case_when(
+  month_num==1~ "Jan",
+  month_num==2~ "Feb",
+  month_num==3~ "Mar",
+  month_num==4~ "Apr",
+  month_num==5~ "May",
+  month_num==6~ "Jun",
+  month_num==7~ "Jul",
+  month_num==8~ "Aug",
+  month_num==9~ "Sep",
+  month_num==10~ "Oct",
+  month_num==11~ "Nov",
+    TRUE ~ "Dec"))
+
+# getting average yearly values
+tv_average_2018 <- mean(as.list(df[df['year_num'] == 2018, ])$Total_Trade_Volume)
+tv_average_2019 <- mean(as.list(df[df['year_num'] == 2019, ])$Total_Trade_Volume)
+tv_average_2020 <- mean(as.list(df[df['year_num'] == 2020, ])$Total_Trade_Volume)
+tv_average_2021 <- mean(as.list(df[df['year_num'] == 2021, ])$Total_Trade_Volume)
+
+gp_average_2018 <- mean(as.list(df[df['year_num'] == 2018, ])$Gas_Reference_Price)
+gp_average_2019 <- mean(as.list(df[df['year_num'] == 2019, ])$Gas_Reference_Price)
+gp_average_2020 <- mean(as.list(df[df['year_num'] == 2020, ])$Gas_Reference_Price)
+gp_average_2021 <- mean(as.list(df[df['year_num'] == 2021, ])$Gas_Reference_Price)
+
+```
+# Division Bell
+
+## Group Members
+
+* **[Emirhan Şahin](https://pjournal.github.io/mef05-liophire/)**
+* **[Murat Can Taşar](https://pjournal.github.io/mef05-mctasar/)**
+* **[Nejat Uğur Akın](https://pjournal.github.io/mef05-nejatugurakin/)**
+* **[Yunus Emre Doğan](https://pjournal.github.io/mef05-yunusemre91/)**
+
+ 
+---
+
+# Introduction
+
+
++ We used two different datasets which are obtained from EPIAS.
+
++ We obtained the Turkish National natural gas market data ranging from 2018 to 2021 from the Energy Transparency Platform. Data contain 1188 rows and 9 variables. Variables are as follows:
+
+  - Date 
+  - Total Trade Volume (TTV)<sup>1</sup>
+  - Gas Reference Price (GRP) <sup>2</sup>
+  - Others (Generated from Date variable such as week, month etc.)
+
++ We analysed each dataset and combined different outcomes.
+
+.footnote[
+<sup>[1]</sup> [Dataset 1](https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-grf.xhtml#)
+
+<sup>[2]</sup> [Dataset 2](https://seffaflik.epias.com.tr/transparency/dogalgaz/stp/stp-toplam-islem-hacmi.xhtml)
+]
+
+---
+```{r, echo=FALSE, warning=FALSE, fig.align='center', fig.width=12, fig.height=5}
+# HAFTALIK GRP DEĞİŞİMİ PLOT
+  ggplot(change_weekly, aes(x=week_num, y=change_GRP, group=year_num, color=year_num)) +
+  geom_line(size=1) +
+  scale_x_continuous(breaks = seq(0, 52, by = 2)) +
+  scale_y_continuous(breaks = seq(-100, 100, by = 5)) +
+  labs(title = "Weekly Change Percentage of GRP",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       color = "Year") + theme(plot.title = element_text(hjust = 0.5, vjust = 2)) +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Week") + ylab("Weekly Change(%)") +
+  theme(legend.justification=c(1,0),
+           legend.position=c(1, 0.6),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+
+# HAFTALIK TTV DEĞİŞİMİ PLOT
+
+ggplot(change_weekly, aes(x=week_num, y=change_TTV, group=year_num, color=year_num)) +
+  geom_line(size=1) +
+  scale_x_continuous(breaks = seq(0, 52, by = 2)) +
+  scale_y_continuous(breaks = seq(-100, 500, by = 25)) +
+  labs(title = "Weekly Change Percentage of TTV",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       color = "Year") + theme(plot.title = element_text(hjust = 0.5, vjust = 2)) +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Week") + ylab("Weekly Change(%)") +
+  theme(legend.justification=c(1,0),
+           legend.position=c(1, 0.6),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+```
+---
+```{r echo = FALSE, results='asis', fig.align='center', fig.width=12, fig.height=8}
+
+# REFERANS FİYATININ MOVING AVERAGE'I GÖRSELLEŞTİRME
+
+change_weekly_movavg <- na.omit(change_weekly)
+change_weekly_movavg <- change_weekly_movavg %>%
+  mutate(csum = cumsum(change_GRP),
+         row_num = seq.int(nrow(change_weekly_movavg)),
+         moving_avg = csum / row_num)
+ggplot(change_weekly_movavg, aes(x = week_num, y = moving_avg, fill = year_num)) +
+  geom_col(position = "identity") +
+  scale_x_continuous(breaks = seq(0, 52, by = 2)) +
+  scale_y_continuous(breaks = seq(-5, 5, by = 0.5)) +
+  labs(title = "Weekly Moving Average of Change of GRP in Percentage",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       fill = "Year") + theme(plot.title = element_text(hjust = 0.5, vjust = 2)) +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Week") + ylab("Weekly Change(%)") +
+  theme(legend.justification=c(1,0),
+           legend.position=c(0.15, 0.15),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+```
+---
+```{r echo = FALSE, results='asis', fig.align='center', fig.width=3.5, fig.height=7}
+# EN YÜKSEK 5 GÜN GRP
+daymax_GRP <- df %>%
+ arrange(desc(df$Gas_Reference_Price)) %>%
+ slice(1:5)
+daymax_GRP <- subset(daymax_GRP, select = c('Date', 'Gas_Reference_Price' , 'season', 'Total_Trade_Volume'))
+kable(daymax_GRP, caption = "Days of 5 Highest GRP") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+
+
+
+# EN YÜKSEK 5 GÜN TTV
+daymax_TTV <- df %>%
+ arrange(desc(df$Total_Trade_Volume)) %>%
+ slice(1:5)
+daymax_TTV <- subset(daymax_TTV, select = c('Date', 'Total_Trade_Volume' , 'season', 'Gas_Reference_Price'))
+kable(daymax_TTV, caption = "Days of 5 Highest TTV") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+
+```
+---
+```{r echo = FALSE, results='asis', fig.align='center', fig.width=3.5, fig.height=7}
+# EN DÜŞÜK 5 GÜN GRP
+daymin_GRP <- df %>%
+ arrange(df$Gas_Reference_Price) %>%
+ slice(1:5)
+daymin_GRP <- subset(daymin_GRP, select = c('Date', 'Gas_Reference_Price' , 'season', 'Total_Trade_Volume'))
+kable(daymin_GRP, caption = "Days of 5 Lowest GRP") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+
+# EN DÜŞÜK 5 GÜN TTV
+daymin_TTV <- df %>%
+ arrange(df$Total_Trade_Volume) %>%
+ slice(1:5)
+daymin_TTV <- subset(daymin_TTV, select = c('Date', 'Total_Trade_Volume' , 'season', 'Gas_Reference_Price'))
+kable(daymin_TTV, caption = "Days of 5 Lowest TTV") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.align='center', fig.width=12, fig.height=5}
+# AYLIK GRP DEĞİŞİMİ PLOT
+
+change_monthly$MonthAbb <- month.abb[change_monthly$month_num]
+change_monthly$MonthAbb <- factor(change_monthly$MonthAbb, levels = c("Jan","Feb","Mar", "Apr", "May","Jun", "Jul","Aug","Sep", "Oct","Nov","Dec"))
+ggplot(change_monthly, aes(x=MonthAbb, y=change_GRP, fill=year_num)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(-100, 100, by = 5)) +
+  labs(title = "Monthly Change Percentage of GRP",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       fill = "Year") +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Month") + ylab("Monthly Change(%)") +
+  theme(legend.justification=c(1,0),
+        legend.position=c(0.95, 0.35),
+        legend.background = element_blank(),
+        legend.key = element_blank())
+
+# AYLIK TTV DEĞİŞİMİ PLOT
+ggplot(change_monthly, aes(x=MonthAbb, y=change_TTV, fill=year_num)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(-100, 500, by = 50)) +
+  labs(title = "Monthly Change Percentage of TTV",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       fill = "Year") +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Month") + ylab("Monthly Change(%)") +
+  theme(legend.justification=c(1,0),
+        legend.position=c(0.95, 0.2),
+        legend.background = element_blank(),
+        legend.key = element_blank())
+```
+---
+```{r echo = FALSE, results='asis'}
+# EN YÜKSEK 5 AY ORTALAMA GRP
+monthmax_GRP <- monthly_grouped %>%
+  arrange(desc(monthly_grouped$Monthly_Average_GRP)) %>%
+  slice(1:5)
+kable(monthmax_GRP, caption = "Months of 5 Highest GRP") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+
+# EN YÜKSEK 5 AY ORTALAMA TTV
+monthmax_TTV <- monthly_grouped %>%
+  arrange(desc(monthly_grouped$Monthly_Average_TTV)) %>%
+  slice(1:5)
+kable(monthmax_TTV, caption = "Months of 5 Highest TTV") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+```
+---
+```{r echo = FALSE, results='asis', fig.align='center', fig.width=5, fig.height=7}
+# EN DÜŞÜK 5 AY ORTALAMA GRP
+monthmin_GRP <- monthly_grouped %>%
+  arrange(monthly_grouped$Monthly_Average_GRP) %>%
+  slice(1:5)
+kable(monthmin_GRP, caption = "Months of 5 Lowest GRP") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+
+# EN DÜŞÜK 5 AY ORTALAMA TTV
+monthmin_TTV <- monthly_grouped %>%
+  arrange(monthly_grouped$Monthly_Average_TTV) %>%
+  slice(1:5)
+kable(monthmin_TTV, caption = "Months of 5 Lowest TTV") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+```
+---
+```{r echo = FALSE, results='asis', fig.align='center', fig.width=5, fig.height=7}
+# EN YÜKSEK ORTALAMA ARTIŞ 5 AY GRP
+maxchangemonthly_GRP <- change_monthly %>%
+  arrange(desc(change_monthly$change_GRP)) %>%
+  slice(1:5)
+maxchangemonthly_GRP <- subset(maxchangemonthly_GRP, select = c('year_num', 'month_num' ,  'Monthly_Average_GRP', 'change_GRP'))
+kable(maxchangemonthly_GRP, caption = "Months of 5 Highest Monthly Average Increase in GRP") %>%
+   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+
+# EN DÜŞÜK ORTALAMA ARTIŞ 5 AY GRP
+minchangemonthly_GRP <- change_monthly %>%
+  arrange(change_monthly$change_GRP) %>%
+  slice(1:5)
+minchangemonthly_GRP <- subset(minchangemonthly_GRP, select = c('year_num', 'month_num' ,  'Monthly_Average_GRP', 'change_GRP'))
+kable(minchangemonthly_GRP, caption = "Months of 5 Lowest Monthly Average Decrease in GRP") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+```
+---
+```{r echo = FALSE, results='asis', fig.align='center', fig.width=5, fig.height=7}
+# EN YÜKSEK ORTALAMA ARTIŞ 5 AY TTV
+maxchangemonthly_TTV <- change_monthly %>%
+  arrange(desc(change_monthly$change_TTV)) %>%
+  slice(1:5)
+maxchangemonthly_TTV <- subset(maxchangemonthly_TTV, select = c('year_num', 'month_num' ,  'Monthly_Average_TTV', 'change_TTV'))
+kable(maxchangemonthly_TTV, caption = "Months of 5 Highest Monthly Average Increase in TTV") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+
+# EN DÜŞÜK ORTALAMA ARTIŞ 5 AY TTV
+minchangemonthly_TTV <- change_monthly %>%
+  arrange(change_monthly$change_TTV) %>%
+  slice(1:5)
+minchangemonthly_TTV <- subset(minchangemonthly_TTV, select = c('year_num', 'month_num' ,  'Monthly_Average_TTV', 'change_TTV'))
+kable(minchangemonthly_TTV, caption = "Months of 5 Lowest Monthly Average Decrease in TTV") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F, position = "center")
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.align='center', fig.width=13, fig.height=5}
+ggplot(df,
+       aes(x=Date,
+           y=Gas_Reference_Price)) +
+  geom_bar(stat = "identity",
+           aes(fill=Gas_Reference_Price)) +
+  theme_light() +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  scale_fill_gradient(name="Gas Reference Price") +
+  labs(title="Daily Gas Reference Prices",
+       x="Date",
+       y="Gas Reference Price") + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+ggplot(df,
+       aes(x=Date,
+           y=Total_Trade_Volume)) +
+  geom_bar(stat = "identity",
+           aes(fill=Total_Trade_Volume)) +
+  theme_light() +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+             size=1,
+             color="red") +
+  scale_fill_gradient(name="Total Trade Volume") +
+  labs(title="Daily Total Trade Volume",
+       x="Date",
+       y="Total Trade Volume") + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+```{r, echo=FALSE, warning=FALSE, figure-side, fig.show="hold", out.width="40%"}
+df %>%
+  group_by(year_num) %>%
+  summarise(mean_yearly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=year_num, y=mean_yearly_tv, fill=mean_yearly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+             size=1,
+             color="red") +
+  labs(title="Average Trade Volume over the Years",
+       x="Years",
+       y="Average Yearly Total Trade Volume") + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(year_num) %>%
+  summarise(total_yearly_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=year_num, y=total_yearly_tv, fill=total_yearly_tv)) +
+  geom_bar(stat="identity") +
+  labs(x="Years",
+       y="Total Yearly Trade Volume",
+       title="Total Trade Volume over the Years") + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(year_num) %>%
+  summarise(mean_yearly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=year_num, y=mean_yearly_gp, fill=mean_yearly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  labs(
+    x="Years",
+    y="Average Yearly Gas Reference Price",
+    title="Average Gas Reference Price over the Years") + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(year_num) %>%
+  summarise(total_yearly_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=year_num, y=total_yearly_gp, fill=total_yearly_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Years",
+    y="Total Yearly Gas Reference Price",
+    title="Total Gas Reference Price over the Years") + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
+df$MonthAbb <- month.abb[df$month_num]
+df$MonthAbb <- factor(df$MonthAbb, levels = c("Jan","Feb","Mar", "Apr", "May","Jun", "Jul","Aug","Sep", "Oct","Nov","Dec"))
+df %>%
+  group_by(MonthAbb) %>%
+  summarise(mean_monthly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=MonthAbb, y=mean_monthly_gp, fill=mean_monthly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+             size=1,
+             color="red") +
+    geom_text(aes(0, gp_average_2018, label = "2018 Average"), vjust = - 1, hjust=0) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average"),  vjust = 1.3, hjust=0) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average"),  vjust = 1.3, hjust=0) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average"),  vjust = -1, hjust=0) +
+  labs(
+    x="Months",
+    y="Average Monthly Gas Reference Price",
+    title="Average Gas Reference Price over the Months"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2)) 
+
+df %>%
+  group_by(MonthAbb) %>%
+  summarise(total_monthly_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=MonthAbb, y=total_monthly_gp, fill=total_monthly_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Months",
+    y="Total Monthly Gas Reference Price",
+    title="Total Gas Reference Price over the Months"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2)) 
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
+# added yearly averages for average GP and average TV
+df %>%
+  group_by(MonthAbb) %>%
+  summarise(mean_monthly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=MonthAbb, y=mean_monthly_tv, fill=mean_monthly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(x="Months",
+       y="Average Monthly Total Trade Volume",
+       title="Average Trade Volume over the Months") + theme(plot.title = element_text(hjust = 0.5, vjust = 2)) 
+
+df %>%
+  group_by(MonthAbb) %>%
+  summarise(total_monthly_tv = sum(Total_Trade_Volume)) %>% 
+  ggplot(aes(x=MonthAbb, y=total_monthly_tv, fill=total_monthly_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Months",
+    y="Total Monthly Trade Volume",
+    title="Total Trade Volume over the Months") + theme(plot.title = element_text(hjust = 0.5, vjust = 2)) 
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%", out.height="50%"}
+df %>%
+  group_by(week_num) %>%
+  summarise(mean_weekly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=week_num, y=mean_weekly_gp, fill=mean_weekly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, gp_average_2018, label = "2018 Average"),  vjust = - 1, hjust=0) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average"),  vjust = 1.3, hjust=0) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average"),  vjust = 1.3, hjust=0) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average"),  vjust = -1, hjust=0) +
+  labs(
+    x="Weeks",
+    y="Average Weekly GRP",
+    title="Average GRP over the Weeks"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(week_num) %>%
+  summarise(total_weekly_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=week_num, y=total_weekly_gp, fill=total_weekly_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Weeks",
+    y="Total Weekly GRP",
+    title="Total GRP over the Weeks"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%", out.height="50%"}
+df %>%
+  group_by(week_num) %>%
+  summarise(mean_weekly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=week_num, y=mean_weekly_tv, fill=mean_weekly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+         size=1,
+         color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Weeks",
+    y="Average Weekly Total TV",
+    title="Average TV over the Weeks"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(week_num) %>%
+  summarise(total_weekly_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=week_num, y=total_weekly_tv, fill=total_weekly_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Weeks",
+    y="Total Weekly TV",
+    title="Total TV over the Weeks"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%", out.height="50%"}
+df %>%
+  group_by(day_of_week) %>%
+  summarise(mean_daily_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=day_of_week, y=mean_daily_tv, fill=mean_daily_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+         size=1,
+         color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Days of the Week",
+    y="Average Daily Total TV",
+    title="Average TV over the Weekdays"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(day_of_week) %>%
+  summarise(total_daily_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=day_of_week, y=total_daily_tv, fill=total_daily_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Days of the Week",
+    y="Daily Total TV",
+    title="Total TV over the Weekdays"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%", out.height="50%"}
+df %>%
+  group_by(day_of_week) %>%
+  summarise(mean_daily_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=day_of_week, y=mean_daily_gp, fill=mean_daily_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, gp_average_2018, label = "2018 Average", vjust = -1, hjust=-2.5)) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average", vjust = 1.3, hjust=-2.5)) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average", vjust = 1.3, hjust=-2.5)) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average", vjust = -1, hjust=-2.5)) +
+  labs(
+    x="Days of the Week",
+    y="Average Daily GRP",
+    title="Average GRP over the Weekdays"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(day_of_week) %>%
+  summarise(total_daily_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=day_of_week, y=total_daily_gp, fill=total_daily_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Days of the Week",
+    y="Total Daily GRP",
+    title="Total GRP over the Weekdays"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%", out.height="50%"}
+df %>%
+  group_by(season) %>%
+  summarise(mean_seasonal_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=season, y=mean_seasonal_tv, fill=mean_seasonal_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+         size=1,
+         color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Seasons",
+    y="Average Seasonal TV",
+    title="Average TV over the Seasons",
+    fill="Average Seasonal TV"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(season) %>%
+  summarise(total_seasonal_tv = sum(Total_Trade_Volume)) %>%
+  ggplot(aes(x=season, y=total_seasonal_tv, fill=total_seasonal_tv)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Seasons",
+    y="Total Seasonal TV",
+    title="Total TV over the Seasons",
+    fill="Total Seasonal TV"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+```{r, echo=FALSE, warning=FALSE, fig.show="hold", out.width="50%", out.height="50%"}
+df %>%
+  group_by(season) %>%
+  summarise(mean_seasonal_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=season, y=mean_seasonal_gp, fill=mean_seasonal_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, gp_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average", vjust = 1.3, hjust=0)) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average", vjust = 1.3, hjust=0)) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Seasons",
+    y="Average Seasonal GRP",
+    title="Average GRP over the Seasons",
+    fill="Average Seasonal GRP"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+
+df %>%
+  group_by(season) %>%
+  summarise(total_seasonal_gp = sum(Gas_Reference_Price)) %>%
+  ggplot(aes(x=season, y=total_seasonal_gp, fill=total_seasonal_gp)) +
+  geom_bar(stat="identity") +
+  labs(
+    x="Seasons",
+    y="Total Seasonal GRP",
+    title="Total GRP over the Seasons",
+    fill="Total Seasonal GRP"
+  ) + theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+```
+---
+
+class: center, middle
+
+#Thank you for listening!
+
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Question_mark_with_ring.svg/236px-Question_mark_with_ring.svg.png)
