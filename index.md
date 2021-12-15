@@ -45,7 +45,7 @@ The source data files are 2 XLS files which are obtained from EPIAS' **[Transpar
 
 ### 4-) Presentation Xaringan File
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 4th part of our group project, we have prepared a Xaringan file for our group project presentation. This Xaringan file consists of the output of our data analysis. Click ***[here](https://pjournal.github.io/mef05g-division-bell/)*** to see the Xaringan Presentation File.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 4th part of our group project, we have prepared a Xaringan file for our group project presentation. This Xaringan file consists of the output of our data analysis. Click ***[here](https://github.com/pjournal/mef05g-division-bell/blob/gh-pages/Presentation/xaringan_sunum_2.pdf)*** to see the **pdf** format. Click ***[here](https://github.com/pjournal/mef05g-division-bell/blob/gh-pages/Presentation/xaringan_sunum_2.html)*** to see the **html** format.  
 
 ### 5-) Final Report
 
