@@ -41,7 +41,7 @@ The source data files are 2 XLS files which are obtained from EPIAS' **[Transpar
 
 ### 3-) Teaser Video
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the 3rd part of our group project, we have prepared a teaser video. You can watch the video by clicking ***[here](https://drive.google.com/file/d/1HHKjOT1rvBK2x1s-Y6DgWIZF7Pa5YpUR/view?usp=sharing)***.
 
 ### 4-) Presentation Xaringan File
 
