@@ -61,7 +61,7 @@ The source data files are 2 XLS files which are obtained from EPIAS' **[Transpar
 
 ### 7-) Blog Post
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In progress...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Click ***[here](https://medium.com/@akinne/turkish-natural-gas-market-7dca5873088e)*** for our medium post.
 
 
 
