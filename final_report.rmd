@@ -1,0 +1,940 @@
+---
+title: "**BDA-503 Division Bell Group Project &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Final Report**"
+author: " _Murat Can Taşar_, _Nejat Uğur Akın_, _Yunus Emre Doğan_, _Emirhan Şahin_"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+    html_notebook:
+        toc: true
+        toc_depth: 2
+        code_folding: hide
+---
+<br>
+<style>
+#TOC {
+    color: #404040;
+    font-size: 13px;
+    border-color: #000000;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h1.title {
+    color: #404040;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h4.author {
+    color: #404040;
+    font-size: 12px;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+h4.date {
+    color: #404040;
+    font-size: 12px;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+}
+body {
+    color: #696969;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+    background-color: #F5F5F5;
+    font-size: 16px;
+</style>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font size="69" color="#404040"> **Turkish Natural Gas Market** </font>
+
+<br>
+
+# **Introduction**
+
+<br>
+
+Turkish natural gas market sees different types of economic activities for almost over 60 years, since Turkish Petroleum Corporation was founded in 1954. It contains a variety of economic categories, such as production, import, export, storage, consumption, and distribution.
+Since the beginning of 2020, a global pandemic has changed in various and unforeseen ways of economic principles and cast a shadow on actionable insights that were considered straightforward in the previous years. Now, we have to take a much closer look at our data to generate rigid results that can be considered safe-for-action. We tried to keep an open mind about the results we found that could be caused by unknown effects, but also did our best to come up with a simple explanation for each graph you can find below. Two simple things need further clarification before moving forward with the analysis:
+
+- Gas Reference Price (TL/1000 Sm^3): Shows the overall average value of gas prices between two 8 AM's.
+- Total Trade Volume (TL): Shows the total amount of price of daily and weekly contracts.
+
+<br>
+
+# **Key Takeaways**
+
+<br>
+
+This report shares some insights about **Natural Gas Market in Turkey** and you may find our results below.
+
+* Our main goal is to express current values and changes in both datasets which include Gas Reference Prices and Total Trade Volumes for the years 2018, 2019, 2020, and 2021.
+
+* In our previous release notes, we have explained our data gathering, cleaning and processing procedures in detail. Even though, the datasets we have used were fairly structured we still needed some effort into them. For more detailed information check out our **Pre-processing phase** [here](https://pjournal.github.io/mef05g-division-bell/pre_processed.nb.html) or the **Exploratory Data Analysis report** [here](https://pjournal.github.io/mef05g-division-bell/eda.nb.html).
+
+* We visualized values of Gas Reference Price and Total Trade Volume of years 2018, 2019, 2020, and 2021 as well as their average and change depending on different time periods.
+
+* We also analyzed some critical points that carry anomalies such as daily and monthly maximums and minimums.
+
+<br>
+
+# **Preparation and Exploration of the Data**
+
+<br>
+
+We have obtained both of our datasets from [EPIAS' Transparency Platform](https://seffaflik.epias.com.tr/transparency/). Raw data consists of 1188 observations of 8 variables.
+
+Objectives of this part of the project are as follows:
+
+* Cleaning dirty data and analyzing.
+* Processing columns to achieve homogeneous data format and numbers.
+* Visualizing the data in order to express overview information.
+* Creating different time periods.
+
+*Click the code button if you want to see the libraries we have used:*
+
+```{r,  message = FALSE, warning = FALSE}
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tibble)
+options(ggplot2.continuous.colour="viridis")
+options(ggplot2.continuous.fill = "viridis")
+```
+
+<br>
+
+## **Pre-processing the Data**
+
+<br>
+
+For this report, we will include the code for pre-processing phase below. However, the whole pre-processing phase is explained in detail on the pre-processing the data page click [here](https://pjournal.github.io/mef05g-division-bell/pre_processed.nb.html) for more details.
+
+### Initial Gas Reference Price Data
+
+Previously, gas reference price data included the wrong data format and number separators. We have fixed all the issues considering that we need clean and properly formatted data for our analysis.
+
+*Click the code button if you want to see code chunk for pre-processing the GRP data:*
+
+```{r, message = FALSE}
+gas_prices <- read_excel("GRP.xls")
+
+str(gas_prices)
+
+names(gas_prices) <- c('Date',
+                       'Gas_Reference_Price')
+
+gas_prices$Gas_Reference_Price <- gsub('.',
+                                       '',
+                                       gas_prices$Gas_Reference_Price,
+                                       fixed = TRUE)
+gas_prices$Gas_Reference_Price <- as.numeric(gsub(',',
+                                                  '.',
+                                                  gas_prices$Gas_Reference_Price,
+                                                  fixed = TRUE))
+gas_prices$Date <- dmy(gas_prices$Date)
+
+head(gas_prices)
+```
+
+### Initial Total Trade Volume Data
+
+As well as gas reference price data, total trade volume also carried out some problems that we need to fix. That as well is done in our pre-processing phase.
+
+*Click the code button if you want to see code chunk for pre-processing TTV the data:*
+
+```{r, message = FALSE}
+trade_volume <- read_excel("TTV.xls")
+
+str(trade_volume)
+
+names(trade_volume) <- c('Date',
+                         'Total_Trade_Volume')
+
+trade_volume$Total_Trade_Volume <- gsub('.',
+                                       '',
+                                       trade_volume$Total_Trade_Volume,
+                                       fixed = TRUE)
+trade_volume$Total_Trade_Volume <- as.numeric(gsub(',',
+                                                  '.',
+                                                  trade_volume$Total_Trade_Volume,
+                                                  fixed = TRUE))
+trade_volume$Date <- dmy(trade_volume$Date)
+
+head(trade_volume)
+
+trade_volume$week_num <- strftime((trade_volume$Date), format = "%V")
+trade_volume$week_num <- as.numeric(trade_volume$week_num)
+
+trade_volume$year_num <- isoyear(trade_volume$Date)
+trade_volume$year_num <- as.numeric(trade_volume$year_num)
+
+trade_volume$month_num <- month(trade_volume$Date)
+trade_volume$month_num <- as.numeric(trade_volume$month_num)
+
+trade_volume$day_of_week <- wday(trade_volume$Date, label = TRUE, abbr = TRUE)
+
+seasons <- NULL
+for(row in seq_len(nrow(trade_volume["Date"]))){
+  if((trade_volume["month_num"][row, 1] == 12) | (trade_volume["month_num"][row, 1] == 1) | (trade_volume["month_num"][row, 1] == 2)){
+    seasons <- append(seasons,"Winter")
+  }
+  else if((trade_volume["month_num"][row, 1] == 3) | (trade_volume["month_num"][row, 1] == 4) | (trade_volume["month_num"][row, 1] == 5)){
+    seasons <- append(seasons,"Spring")
+  }
+  else if((trade_volume["month_num"][row, 1] == 6) | (trade_volume["month_num"][row, 1] == 7) | (trade_volume["month_num"][row, 1] == 8)){
+    seasons <- append(seasons,"Summer")
+  }
+  else {
+    seasons <- append(seasons,"Fall")
+  }
+}
+trade_volume["season"] <- seasons
+```
+
+### Final Natural Gas RDS
+
+Finally, as seen below we have obtained clean and ready-to-analyze data and saved it as a .rds file. That helped us a lot when we are conducting our exploratory data analysis and final analysis.
+
+*Click the code button if you want to see code chunk for pre-processing the data:*
+
+```{r, message = FALSE}
+df <- merge(x=trade_volume, y=gas_prices, by='Date')
+head(df)
+saveRDS(df, "natural_gas_data.rds")
+```
+
+<br>
+
+## **Exploratory Data Analysis Report**
+
+<br>
+
+As before, we will include the code for the exploratory data analysis phase below. However, the whole exploratory data analysis phase is explained in detail on the exploratory data analysis report page click [here](https://pjournal.github.io/mef05g-division-bell/eda.nb.html) for more details.
+
+*Click the code button if you want to see code chunk for exploratory data analysis:*
+
+### Overview of Natural Gas Data RDS
+
+*Click the code button if you want to see code chunk for overview the RDS file:*
+
+```{r, message = FALSE}
+df <- readRDS("natural_gas_data.rds")
+
+str(df)
+
+summary(df)
+```
+
+### Visualization of Natural Gas Data
+
+<br>
+
+Even though this is just a simple overlook, the daily gas reference prices plot shows us how prices were stable in the first years then suddenly started to rise in the last quarter of 2021. The Red line, the average of our whole data, has shifted up so suddenly that left all the prices in the last years under it.
+
+*Click the code button if you want to see code chunk for visualization of the data:*
+
+```{r, message = FALSE}
+ggplot(df,
+       aes(x=Date,
+           y=Gas_Reference_Price)) +
+  geom_bar(stat = "identity",
+           aes(color=year_num)) +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  labs(title="Daily Gas Reference Prices",
+       x="Years",
+       y="Gas Reference Price",
+       color='Years')
+```
+
+<br>
+
+The daily total trade volume plot clearly shows us it is much more volatile than gas reference price data.
+
+```{r, message = FALSE}
+ggplot(df,
+       aes(x=Date,
+           y=Total_Trade_Volume/1000000)) +
+  geom_bar(stat = "identity",
+           aes(color=year_num)) +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume)/1000000,
+             size=1,
+             color="red") +
+  labs(title="Daily Total Trade Volume in Millions",
+       x="Years",
+       y="Total Trade Volume(mil)",
+       color='Years')
+```
+
+
+<br>
+
+We went ahead and checked their standard deviation, and it is, as expected, enormous in the total trade volume dataset, compared to the standard deviation of the gas reference price.
+
+<br>
+
+Here is the standard deviation of Total Trade Volume:
+```{r, message = FALSE}
+sd(df$Total_Trade_Volume)
+```
+<br>
+And here is the standard deviation of Gas Reference Price:
+```{r, message = FALSE}
+round(sd(df$Gas_Reference_Price), 2)
+```
+
+<br>
+
+# **Final Analysis**
+
+<br>
+
+We started to our final analysis by further processing columns in order to frankly visualize them grouped by certain time periods.
+
+*Click the code button if you want to see code chunk for grouping the data:*
+
+```{r, message = FALSE}
+df <- readRDS("natural_gas_data.rds")
+weekly_grouped <- df %>%
+  group_by(year_num, week_num) %>%
+  summarise(Weekly_Average_GRP = mean(Gas_Reference_Price),
+            Weekly_Average_TTV = mean(Total_Trade_Volume)) %>%
+  ungroup()
+monthly_grouped <- df %>%
+  group_by(year_num, month_num) %>%
+  summarise(Monthly_Average_GRP = mean(Gas_Reference_Price),
+            Monthly_Average_TTV = mean(Total_Trade_Volume)) %>%
+  ungroup()
+change_weekly <- weekly_grouped %>%
+  mutate(change_GRP =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Weekly_Average_GRP - lag(Weekly_Average_GRP)) / lag(Weekly_Average_GRP) * 100),
+  change_TTV =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Weekly_Average_TTV - lag(Weekly_Average_TTV)) / lag(Weekly_Average_TTV) * 100))
+change_monthly <- monthly_grouped %>%
+  mutate(change_GRP =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Monthly_Average_GRP - lag(Monthly_Average_GRP)) / lag(Monthly_Average_GRP) * 100),
+  change_TTV =  ifelse((year_num - lag(year_num)) > 1,
+                              NA,
+                              (Monthly_Average_TTV - lag(Monthly_Average_TTV)) / lag(Monthly_Average_TTV) * 100))
+```
+
+<br>
+
+Our first output is the weekly percentage change in our Gas Reference Prices throughout 3 years. When we look at our data on weekly basis, we can see that throughout a year prices mostly change as expected and lines fit each other.
+
+However, starting from the 36th week of 2021 our line chart greatly deviates from the previous years. According to [this news article](https://www.cnbc.com/2021/10/08/natural-gas-prices-are-skyrocketing-globally-what-it-means-for-the-us.html), prices are rising due to the decrease in Europe’s gas production over the last two decades and the increase in demand as economies get back to business and consumers return to pre-pandemic activities.
+
+Not all of this news happened in one week instead they were accumulating over the summer. But there was one thing that happened in only a week. That was a decrease in the country's political interest rate which ultimately led to a decrease in the Turkish Lira's valuation. As seen in the graph starting from September 2021 percentage change in prices did not decrease once.
+
+The global market may get to an equilibrium point considering supply and demand in our next analysis we will see if these sudden price changes affected the total trade volume, demand.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+
+```{r, message = FALSE, warning = FALSE}
+ggplot(change_weekly, aes(x=week_num, y=change_GRP, group=year_num, color=year_num)) +
+  geom_line(size=1) +
+  scale_x_continuous(breaks = seq(0, 52, by = 2)) +
+  scale_y_continuous(breaks = seq(-100, 100, by = 5)) +
+  labs(title = "Weekly Change Percentage of GRP",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       color = "Year") +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Week") + ylab("Weekly Change(%)") +
+  theme(legend.justification=c("left", "top"),
+           legend.position=c(0.01, 0.99),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+```
+
+<br>
+
+As seen below, the demand for natural gas did not increase until the 38th week of 2021. Therefore, we can not conclude that prices have risen due to high trade volume or demand. Total trade volume was fairly in line with the previous year until week 44 which is the beginning of November.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+
+```{r, message = FALSE, warning = FALSE}
+ggplot(change_weekly, aes(x=week_num, y=change_TTV, group=year_num, color=year_num)) +
+  geom_line(size=1) +
+  scale_x_continuous(breaks = seq(0, 52, by = 2)) +
+  scale_y_continuous(breaks = seq(-100, 500, by = 25)) +
+  labs(title = "Weekly Change Percentage of TTV",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       color = "Year") +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Week") + ylab("Weekly Change(%)") +
+  theme(legend.justification=c("left", "top"),
+           legend.position=c(0.01, 0.99),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+```
+
+<br>
+
+We also analyzed the monthly change in both Gas Reference Price (GRP) and Total Trade Volume (TTV). According to this analysis;
+
+The 3 highest changes in GRP in terms of months are in October, November, and December. On the other hand, the highest change in GRP in terms of years is in 2021.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+change_monthly$MonthAbb <- month.abb[change_monthly$month_num]
+change_monthly$MonthAbb <- factor(change_monthly$MonthAbb, levels = c("Jan","Feb","Mar", "Apr", "May","Jun", "Jul","Aug","Sep", "Oct","Nov","Dec"))
+ggplot(change_monthly, aes(x=MonthAbb, y=change_GRP, fill=year_num)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(-100, 100, by = 5)) +
+  labs(title = "Monthly Change Percentage of GRP",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       fill = "Year") +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Month") + ylab("Monthly Change(%)") +
+  theme(legend.justification=c(1,0),
+           legend.position=c(0.95, 0.35),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+```
+
+<br>
+
+The 3 highest changes in TTV in terms of months are in February, June, and October. On the other hand, the highest change in TTV in terms of years is in 2021.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+ggplot(change_monthly, aes(x=MonthAbb, y=change_TTV, fill=year_num)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(-100, 400, by = 25)) +
+  labs(title = "Monthly Change Percentage of TTV",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       fill = "Year") +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Month") + ylab("Monthly Change(%)") +
+  theme(legend.justification=c(1,0),
+           legend.position=c(0.95, 0.3),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+```
+
+<br>
+
+It is no surprise for us to see maximum prices throughout 3 years is in the last quarter of 2021.
+
+<br>
+
+```{r, message = FALSE, warning = FALSE}
+daymax_GRP <- df %>%
+  arrange(desc(df$Gas_Reference_Price)) %>%
+  slice(1:5)
+daymax_GRP <- subset(daymax_GRP, select = c('Date', 'Gas_Reference_Price' , 'season', 'Total_Trade_Volume'))
+daymax_GRP
+```
+
+<br>
+
+The highest total trade volume dates can be explained with really low prices and the season being winter at that time.
+
+<br>
+
+```{r, message = FALSE, warning = FALSE}
+daymax_TTV <- df %>%
+  arrange(desc(df$Total_Trade_Volume)) %>%
+  slice(1:5)
+daymax_TTV <- subset(daymax_TTV, select = c('Date', 'Total_Trade_Volume' , 'season', 'Gas_Reference_Price'))
+daymax_TTV
+```
+
+<br>
+
+As seen in the previous total trade volume, now we have a better understanding of why the volume was that high. The lowest prices were actually achieved in February 2021.
+
+<br>
+
+```{r, message = FALSE, warning = FALSE}
+daymin_GRP <- df %>%
+  arrange(df$Gas_Reference_Price) %>%
+  slice(1:5)
+daymin_GRP <- subset(daymin_GRP, select = c('Date', 'Gas_Reference_Price' , 'season', 'Total_Trade_Volume'))
+daymin_GRP
+```
+
+<br>
+
+Explaining the minimum total trade volume days is harder than the previous parts since the relation between price and season did not really give us any correlation. We expect it to be a result of high demand in the previous weeks or days then incurring a surplus.
+
+<br>
+
+```{r, message = FALSE, warning = FALSE}
+daymin_TTV <- df %>%
+  arrange(df$Total_Trade_Volume) %>%
+  slice(1:5)
+daymin_TTV <- subset(daymin_TTV, select = c('Date', 'Total_Trade_Volume' , 'season', 'Gas_Reference_Price'))
+daymin_TTV
+```
+
+<br>
+
+Average monthly changes draws the picture clearly since all the top values are from 2021. Energy prices rising more than %25 monthly eventually results increase in prices of everything.
+
+<br>
+
+```{r, message = FALSE, warning = FALSE}
+maxchangemonthly_GRP <- change_monthly %>%
+  arrange(desc(change_monthly$change_GRP)) %>%
+  slice(1:5)
+maxchangemonthly_GRP <- subset(maxchangemonthly_GRP, select = c('year_num', 'month_num' , 'Monthly_Average_GRP', 'change_GRP'))
+maxchangemonthly_GRP
+```
+
+<br>
+
+This analysis clearly points us how prices declined following the decrease in demand due to Covid-19 and beginning of the summer.
+
+<br>
+
+```{r, message = FALSE, warning = FALSE}
+minchangemonthly_GRP <- change_monthly %>%
+  arrange(change_monthly$change_GRP) %>%
+  slice(1:1)
+minchangemonthly_GRP <- subset(minchangemonthly_GRP, select = c('year_num', 'MonthAbb' , 'Monthly_Average_GRP', 'change_GRP', 'Monthly_Average_TTV', 'change_TTV'))
+minchangemonthly_GRP
+```
+
+<br>
+
+In the analysis below, we created a moving average of percentage change of weekly prices. In order to clarify the point that the prices start to gain a pattern of rising.
+
+<br>
+
+*Click the code button if you want to see code chunk for the moving average:*
+
+```{r, message = FALSE, warning = FALSE}
+change_weekly_movavg <- na.omit(change_weekly)
+change_weekly_movavg <- change_weekly_movavg %>%
+  mutate(csum = cumsum(change_GRP),
+         row_num = seq.int(nrow(change_weekly_movavg)),
+         moving_avg = csum / row_num)
+```
+
+<br>
+
+The plot answers our question perfectly, after the 13th week of 2021 weekly average of the gas reference prices tend to change positively. Even though the change in prices sometimes goes negatively, overall the prices were rising since the start of 2021, and finally, at the end of the first quarter, the weekly average became positive.
+
+So we can say prices earned weekly increasing tendency at the end of the first quarter of 2021.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+ggplot(change_weekly_movavg, aes(x = week_num, y = moving_avg, fill = year_num)) +
+  geom_col(position = "identity") +
+  scale_x_continuous(breaks = seq(0, 52, by = 2)) +
+  scale_y_continuous(breaks = seq(-5, 5, by = 0.5)) +
+  labs(title = "Weekly Moving Average of Change of GRP in Percentage",
+       caption="source: TRANSPARENCY PLATFORM - EPIAS",
+       fill = "Year") +
+  geom_hline(yintercept = 0, color = "red") +
+  xlab("Week") + ylab("Weekly Change(%)") +
+  theme(legend.justification=c(1,0),
+           legend.position=c(0.15, 0.15),
+           legend.background = element_blank(),
+           legend.key = element_blank())
+```
+
+<br>
+
+Our next output can be classified as more of a breakdown comparison of our dataset. One of the most important outcome shows itself when we look at the graph below.
+
+It shows a significant raise in average gas prices in the year 2021 when compared to other years. This has been the result of many things, according to different sources, but one reason stands out in every article online, which mentions [Gazprom's suspicious behaviour which can be understood as market manipulation](https://www.reuters.com/business/energy/group-eu-lawmakers-seeks-probe-gazproms-role-gas-price-surge-2021-09-17/).
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+
+tv_average_2018 <- mean(as.list(df[df['year_num'] == 2018, ])$Total_Trade_Volume)
+tv_average_2019 <- mean(as.list(df[df['year_num'] == 2019, ])$Total_Trade_Volume)
+tv_average_2020 <- mean(as.list(df[df['year_num'] == 2020, ])$Total_Trade_Volume)
+tv_average_2021 <- mean(as.list(df[df['year_num'] == 2021, ])$Total_Trade_Volume)
+
+gp_average_2018 <- mean(as.list(df[df['year_num'] == 2018, ])$Gas_Reference_Price)
+gp_average_2019 <- mean(as.list(df[df['year_num'] == 2019, ])$Gas_Reference_Price)
+gp_average_2020 <- mean(as.list(df[df['year_num'] == 2020, ])$Gas_Reference_Price)
+gp_average_2021 <- mean(as.list(df[df['year_num'] == 2021, ])$Gas_Reference_Price)
+
+gp_years_average <- df %>%
+  group_by(year_num) %>%
+  summarise(mean_yearly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=year_num, y=mean_yearly_gp, fill=mean_yearly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Gas_Reference_Price),
+             size=1,
+             color="red") +
+  labs(
+    x="Years",
+    y="Average Yearly Gas Reference Price",
+    title="Average Gas Reference Price over the Years"
+  )
+gp_years_average
+```
+
+<br>
+
+If we look at the total trade volume averages we see a somewhat different picture. Notice that even though the prices were about the same for 2018 till 2020, 2019 had the lowest trade volume values. This is particularly interesting where when we compare it to the high prices of 2020, which we actually expect it to be lower than others.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+tv_years_average <- df %>%
+  group_by(year_num) %>%
+  summarise(mean_yearly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=year_num, y=mean_yearly_tv, fill=mean_yearly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = mean(df$Total_Trade_Volume),
+             size=1,
+             color="red") +
+  labs(
+    x="Years",
+    y="Average Yearly Total Trade Volume",
+    title="Average Trade Volume over the Years"
+  )
+
+tv_years_average
+```
+
+
+<br>
+
+If we look at the average gas prices in a monthly fashion, we get to see an expected result. According to the article [here](https://www.eia.gov/energyexplained/natural-gas/factors-affecting-natural-gas-prices.php), whenever the demand for CGN increases, its price will generally increase as well. When we think of cold winter months starting from October, we expect to see high levels of average GRP, and we do. But, an interesting result can also be found from the graph below. December, January and February have actually very low average gas prices. Also, when we compare these prices to the overall average in respective years, we get to see that 2021 has a very high average compared to other years. And also important to note that even though the average gas prices are high in 2021, November average still beats it by a small margin with its ridiculously high average gas prices.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+df$MonthAbb <- month.abb[df$month_num]
+df$MonthAbb <- factor(df$MonthAbb, levels = c("Jan","Feb","Mar", "Apr", "May","Jun", "Jul","Aug","Sep", "Oct","Nov","Dec"))
+gp_months_average <- df %>%
+  group_by(MonthAbb) %>%
+  summarise(mean_monthly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=MonthAbb, y=mean_monthly_gp, fill=mean_monthly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+             size=1,
+             color="red") +
+    geom_text(aes(0, gp_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Months",
+    y="Average Monthly Gas Reference Price",
+    title="Average Gas Reference Price over the Months"
+  )
+gp_months_average
+```
+
+<br>
+
+Our prior analysis is further confirmed by this graph also. We can deduce that even though the prices were high in November, because people and industry needed heating, they still had to consume CGN luxuriously. But, we can also note that even though the prices were low in summer compared to winter, June has a considerable amount of CGN usage with February. If we also look at the yearly averages, we get to see that 2021 has actually a very low average trade volume. This can be caused by several different factors, but high gas prices is probably the main cause of this issue. 2019 also has a different behaviour than other years, this can be further analysed to see what caused low trade volume values that year.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+
+tv_months_average <- df %>%
+  group_by(MonthAbb) %>%
+  summarise(mean_monthly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=MonthAbb, y=mean_monthly_tv, fill=mean_monthly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Months",
+    y="Average Monthly Total Trade Volume",
+    title="Average Trade Volume over the Months"
+  )
+tv_months_average
+```
+
+<br>
+
+A further analysis can be applied with the same logic to weekly aggregation as well. We can see clearly the same results with the monthly aggregation. Weeks around the start of winter have the highest average gas reference prices. Moving in the year a sharp drop happens right around December, and continues to build up from there up until October.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+
+gp_weeks_average <- df %>%
+  group_by(week_num) %>%
+  summarise(mean_weekly_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=week_num, y=mean_weekly_gp, fill=mean_weekly_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, gp_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Weeks",
+    y="Average Weekly GRP",
+    title="Average GRP over the Weeks"
+  )
+gp_weeks_average
+```
+
+<br>
+
+Same with the monthly trade volume graph, we see the same pattern happening here also. Two spikes are happening around week 7 and 42. By using only our intuition, we can safely say that these two months are when an unexpected cold weather happens most of the time, so this might an underlying cause of why these two specific weeks have a significant higher average than other weeks.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+tv_weeks_average <- df %>%
+  group_by(week_num) %>%
+  summarise(mean_weekly_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=week_num, y=mean_weekly_tv, fill=mean_weekly_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+         size=1,
+         color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Weeks",
+    y="Average Weekly Total TV",
+    title="Average TV over the Weeks"
+  )
+tv_weeks_average
+```
+
+<br>
+
+Moving on to the weekday analysis, we can clearly see that there is almost no change between any given weekday.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+gp_days_average <- df %>%
+  group_by(day_of_week) %>%
+  summarise(mean_daily_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=day_of_week, y=mean_daily_gp, fill=mean_daily_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, gp_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Days of the Week",
+    y="Average Daily GRP",
+    title="Average GRP over the Weekdays"
+  )
+gp_days_average
+```
+
+<br>
+
+But if we look at trade volume averages, we can clearly see that mid-weekdays actually have a higher trade volume average than other days. This insight can be further analysed using deep domain knowledge by identifying underlying factors happening on those days. It can also be said that average trade volume values was so high in 2020 that no weekday can come close to it. On the other hand 2019 actually have been surpassed by each weekday.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+tv_days_average <- df %>%
+  group_by(day_of_week) %>%
+  summarise(mean_daily_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=day_of_week, y=mean_daily_tv, fill=mean_daily_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+         size=1,
+         color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Days of the Week",
+    y="Average Daily Total TV",
+    title="Average TV over the Weekdays"
+  )
+tv_days_average
+```
+
+<br>
+
+As our last analysis, we can take a look at the seasonal averages. Interesting insights can be retrieved from this graph. For example, we expect it to have high average gas prices in winter, but we can clearly see that actually fall season has the highest average value by a large margin. Actually, winter season has the lowest gas reference overall. This can be the effect of the steep decrease of average gas prices going from November to January. There is also a clear difference for the year 2021 when compared to seasonal averages.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+gp_seasons_average <- df %>%
+  group_by(season) %>%
+  summarise(mean_seasonal_gp = mean(Gas_Reference_Price)) %>%
+  ggplot(aes(x=season, y=mean_seasonal_gp, fill=mean_seasonal_gp)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = gp_average_2018,
+           size=1,
+           color="red") +
+  geom_text(aes(0, gp_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, gp_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, gp_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = gp_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, gp_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Seasons",
+    y="Average Seasonal GRP",
+    title="Average GRP over the Seasons",
+    fill="Average Seasonal GRP"
+  )
+gp_seasons_average
+```
+
+<br>
+
+If we take a look at total trade volume averages over the seasons, we see the same trend happening again.
+
+<br>
+
+*Click the code button if you want to see code chunk for creating the plot below:*
+```{r, message = FALSE, warning = FALSE}
+tv_seasons_average <- df %>%
+  group_by(season) %>%
+  summarise(mean_seasonal_tv = mean(Total_Trade_Volume)) %>%
+  ggplot(aes(x=season, y=mean_seasonal_tv, fill=mean_seasonal_tv)) +
+  geom_bar(stat="identity") +
+  geom_hline(yintercept = tv_average_2018,
+         size=1,
+         color="red") +
+  geom_text(aes(0, tv_average_2018, label = "2018 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2019,
+         size=1,
+         color="green") +
+  geom_text(aes(0, tv_average_2019, label = "2019 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2020,
+         size=1,
+         color="blue") +
+  geom_text(aes(0, tv_average_2020, label = "2020 Average", vjust = - 1, hjust=0)) +
+  geom_hline(yintercept = tv_average_2021,
+         size=1,
+         color="yellow") +
+  geom_text(aes(0, tv_average_2021, label = "2021 Average", vjust = - 1, hjust=0)) +
+  labs(
+    x="Seasons",
+    y="Average Seasonal TV",
+    title="Average TV over the Seasons",
+    fill="Average Seasonal TV"
+  )
+tv_seasons_average
+```
+
+<br>
+
+# **Conclusion**
+
+<br>
+
+* We can clearly see a rise in gas reference prices in 2021 when compared to other years. This can be related to the fact that Gazprom's alleged market manipulation, decrease in Turkish Lira's value, and as well as other side factors. On the other hand, total trade volume behaves almost the same way we expect it to be, except in certain time periods, we can see that it is lower or higher than previous values. Overall we can conclude that the demand for natural gas did not have a drastic change to affect the global market prices.
+* Monthly and weekly aggregation graphs show us that November and October in 2021 have the highest gas reference prices and total trade volume averages respectively.
+* The fall season unexpectedly has the highest gas price and trade volume averages. On the other hand, winter actually has the lowest averages.
+* Even though there is no significant change in average gas prices between each weekday, trade volume averages change over weekdays. This also may be depending on the demanding company's policy.
+
+<br>
+
+### **References**
+
+<br>
+
+* [EPIAS Transparency Platform](https://seffaflik.epias.com.tr/transparency/)
+* [CNBC, Natural gas prices are skyrocketing around the world. Here’s why the U.S. may not suffer as much, FRI, OCT 8 20212:06 PM EDT, Pippa Stevens](https://www.cnbc.com/2021/10/08/natural-gas-prices-are-skyrocketing-globally-what-it-means-for-the-us.html)
+* [USDTRY Exchange Rate Live Graph](https://finance.yahoo.com/quote/USDTRY=X/)
+* [Reuters, Turkey hikes natural gas prices for power plants, industry by 47-48%, November 1, 2021
+7:30 AM +03, Reporting by Orhan Coskun Editing by Daren Butler](https://www.reuters.com/world/middle-east/turkey-hikes-natural-gas-prices-power-plants-industry-by-47-48-2021-11-01/)
+* [British Columbia, Gas reference prices](https://www2.gov.bc.ca/gov/content/taxes/natural-resource-taxes/oil-natural-gas/oil-gas-royalty/reference-price#:~:text=The%20gas%20reference%20price%20is,posted%20minimum%20price%20(PMP))
+* [The National Law Review, December 15, 2021 Volume XI, Number 349, Greg Leonard, Nicole M. Moran, Laurent Samuel](https://www.natlawreview.com/article/us-natural-gas-physical-trading-volume-and-marketed-production-remain-high)
+* [EPDK, Natural Gas Market Annual Sector Report List](https://www.epdk.gov.tr/Detay/Icerik/3-0-94/yillik-sektor-raporu)
+* [U.S. Energy Information Administration, Natural gas explained Factors affecting natural gas prices, October 5, 2021](https://www.eia.gov/energyexplained/natural-gas/factors-affecting-natural-gas-prices.php)
+* [Reuters, Group of EU lawmakers seeks probe of Gazprom's role in gas price surge, September 17, 2021 8:15 PM +03, Reporting by Kate Abnett; additional reporting by Vladimir Soldatkin, Thomas Balmes; Editing by Louise Heavens](https://www.reuters.com/business/energy/group-eu-lawmakers-seeks-probe-gazproms-role-gas-price-surge-2021-09-17/)
